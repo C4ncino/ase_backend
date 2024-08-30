@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from .models.base import Base
-from .models.example import Example
+from .models.users import User
 
 
 class Query(dict):
@@ -36,7 +36,7 @@ class DatabaseInterface:
 
     __TABLE_CLASS_MAP = {
         # TODO: Add all your models here
-        'examples': Example,
+        'users': User,
     }
 
     def __init__(self) -> None:
