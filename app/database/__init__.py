@@ -2,9 +2,9 @@
 Database class and Models
 """
 
-from .models.example import Example
+from .models.users import User
 from .database_class import DatabaseInterface
 
 database = DatabaseInterface()
 
-__all__ = ['Example', 'DatabaseInterface', 'database']
+__all__ = ['User', 'DatabaseInterface', 'database']
