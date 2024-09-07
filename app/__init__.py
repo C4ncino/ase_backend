@@ -6,8 +6,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
 from .config import AppConfig
-from app.routes import example_bp
-
+from app.routes import users_bp, words_bp
 # -----------------------------------------------------------------------------
 
 app = Flask(__name__)
@@ -18,9 +17,11 @@ CORS(app)
 
 JWTManager(app)
 
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------------------s----------
 
-app.register_blueprint(example_bp)
+app.register_blueprint(users_bp)
+app.register_blueprint(words_bp)
+#app.register_blueprint(models_bp)
 
 # -----------------------------------------------------------------------------
 

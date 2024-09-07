@@ -3,16 +3,18 @@ from datetime import datetime as dt
 
 import sqlalchemy.exc
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, registry
 
 from .models.base import Base
 from .models.users import User
+from .models.word import Word
+from .models.models import Model
 
 
 class Query(dict):
-    nombre: str
-    edad: int
-    email: str
+    field: str
+    value: str | int | float | bool | dt
+    comparison: str
 
 
 class DatabaseInterface:
@@ -37,6 +39,8 @@ class DatabaseInterface:
     __TABLE_CLASS_MAP = {
         # TODO: Add all your models here
         'users': User,
+        'words': Word,
+        'models' : Model
     }
 
     def __init__(self) -> None:
@@ -45,6 +49,10 @@ class DatabaseInterface:
         session_class = sessionmaker(bind=self.__engine)
 
         self.__session = session_class()
+
+        mapper = registry()
+
+        mapper.configure()
 
         Base.metadata.create_all(self.__engine)
 
@@ -102,7 +110,7 @@ class DatabaseInterface:
         if table_class:
             data = self.__session.query(table_class)
 
-            return data.filter(table_class.Id == element_id).first()
+            return data.filter(table_class.id == element_id).first()
 
         return None
 
@@ -224,7 +232,7 @@ class DatabaseInterface:
 
         if table_class:
             data = self.__session.query(table_class)
-            data = data.filter(table_class.Id == element_id).first()
+            data = data.filter(table_class.id == element_id).first()
 
             for key, value in row_info.items():
                 setattr(data, key, value)
@@ -251,7 +259,7 @@ class DatabaseInterface:
         if table_class:
             try:
                 data = self.__session.query(table_class)
-                data = data.filter(table_class.Id == id_element).first()
+                data = data.filter(table_class.id == id_element).first()
 
                 self.__session.delete(data)
                 self.__session.commit()

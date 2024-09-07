@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-class AppConfig:
+class AppConfig:# Configura la aplicación Flask.
     DEBUG = 1
     HOST = os.getenv('HOST', '0.0.0.0')
     PORT = os.getenv('PORT', 5000)
@@ -14,7 +14,7 @@ class AppConfig:
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
 
-class DatabaseConfig:
+class DatabaseConfig:# Utiliza get_db_url() para construir la URL de conexión a la base de datos.
     DB_NAME = os.getenv('DB_NAME')
     DB_USER = os.getenv('DB_USER')
     DB_PASSWORD = os.getenv('DB_PASSWORD')
