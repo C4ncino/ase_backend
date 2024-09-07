@@ -36,9 +36,19 @@ def get_all_words(user_id):
     try:
         # Recuperar todas las palabras desde la base de datos
         words = database.read_by_field('words', 'user_id', user_id)
+        sorted_words = sorted(words, key=lambda word: word.word.lower())
+         # Agrupar las palabras en función de la primera letra
+        grouped_words = {}
+        for word in sorted_words:
+            first_letter = word.word[0].upper()
+            group_key = f'{first_letter}{first_letter.lower()}'
+            if group_key not in grouped_words:
+                grouped_words[group_key] = []
+            grouped_words[group_key].append(word.serialize())
+
 
         # Serializar cada palabra antes de devolverla
-        return jsonify({'words': [word.serialize() for word in words]}), 200
+        return jsonify({'words': grouped_words}), 200
 
     except Exception as e:
         return jsonify({'error': f'Error al procesar la solicitud: {str(e)}'}), 500
