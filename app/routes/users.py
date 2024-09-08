@@ -17,6 +17,7 @@ from app.database import User
 users_bp = Blueprint('example_routes', __name__, url_prefix='/users')
 
 #CONFIG 
+##duda
 users_bp.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 users_bp.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 jwt = JWTManager(users_bp)
@@ -51,9 +52,11 @@ def login():
     if len(result) == 0 or len(result) > 1:
         return jsonify({'error': 'Credenciales inválidas'}), 401
 
+    user_id = result[0].id
+
     #generan token JWT
-    token = create_access_token( {'email': email} )
-    refresh_token = create_refresh_token(identity={'email': email})
+    token = create_access_token( {'user_id':user_id, 'email': email}, fresh = True )
+    refresh_token = create_refresh_token(identity={'user_id': user_id,'email': email})
 
     # devolver token
     return jsonify(
@@ -78,7 +81,7 @@ def signup():
         if not success:
             return make_response(jsonify({'error': 'Fallo en el registro'}), 500)
         
-        token = create_access_token({'email': user.email})
+        token = create_access_token({'user_id': user.id, 'email': user.email})
 
         return jsonify(
             {
@@ -108,6 +111,34 @@ def refresh():
 def protected():
     return jsonify(foo="bar")
 
+#ME
+@users_bp.route('/me', methods=['GET'])
+@jwt_required() 
+def me():
+    # Obtener el ID de usuario encriptado desde el token
+    current_user = get_jwt_identity() 
+    user_id = current_user.get('user_id') 
+
+    # Buscar el usuario en la base de datos usando el ID
+    user = database.read_by_fields(
+        'users',
+        [
+            {
+                "field": "id", 
+                "value": user_id,
+                "comparison": "eq"
+            }
+        ]
+    )
+
+    # Si no se encuentra el usuario
+    if len(user) == 0:
+        return jsonify({'error': 'Usuario no encontrado'}), 404
+
+    # Retorna la información del usuario en formato JSON
+    return jsonify({'user': user[0].serialize()}), 200
+
 
 if __name__ == "__main__":
     users_bp.run()
+
