@@ -120,23 +120,12 @@ def me():
     user_id = current_user.get('user_id') 
 
     # Buscar el usuario en la base de datos usando el ID
-    user = database.read_by_fields(
-        'users',
-        [
-            {
-                "field": "id", 
-                "value": user_id,
-                "comparison": "eq"
-            }
-        ]
-    )
+    user = database.read_by_id(user_id)
 
-    # Si no se encuentra el usuario
-    if len(user) == 0:
+    if user is None:
         return jsonify({'error': 'Usuario no encontrado'}), 404
 
-    # Retorna la información del usuario en formato JSON
-    return jsonify({'user': user[0].serialize()}), 200
+    return jsonify({'user': user.serialize()}), 200
 
 
 if __name__ == "__main__":
