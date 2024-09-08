@@ -1,3 +1,10 @@
 Backend:
     ✔ Hacer ruta Login @1h @started(24-08-29 19:24) @done(24-08-30 12:04) @lasted(16h40m30s)
     ✔ Hacer ruta sign up @done(24-08-30 12:04)
+    ✔ Hacer ruta words, con get all, update, add word @done(24-09-06 23:38)
+    ✔ Clase Word @done(24-09-06 23:38)
+    ✔ Como hacer un refresh del token. le mando una peticion  y me regresa un token actualizado. @started(24-09-06 23:42) @done(24-09-07 00:19) @lasted(37m43s)
+    ☐ Ruta me, me tiene que devolver mi usuario GET solo le mando el token, va encriptado el ID de usuario
+
+
+

@@ -1,9 +1,13 @@
 """
 Define user routes
 """
-
+from datetime import timedelta
 
 from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_refresh_token
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import JWTManager
+
 from flask import Blueprint, jsonify, request, make_response
 from app.utils import pp_decorator
 from app.database import database
@@ -11,6 +15,13 @@ from app.database import User
 
 
 users_bp = Blueprint('example_routes', __name__, url_prefix='/users')
+
+#CONFIG 
+users_bp.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+users_bp.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
+jwt = JWTManager(users_bp)
+
+#LOG IN
 
 @users_bp.route('/login', methods=['POST'])
 @pp_decorator(request, required_fields=['email', 'password']) 
@@ -42,15 +53,18 @@ def login():
 
     #generan token JWT
     token = create_access_token( {'email': email} )
+    refresh_token = create_refresh_token(identity={'email': email})
 
     # devolver token
     return jsonify(
         {
             'user': result[0].serialize(),
-            'token': token
+            'token': token,
+            'refresh_token': refresh_token
         }
     ), 200
 
+#SIGN UP
 
 @users_bp.route('/sign-up', methods=['POST'])
 @pp_decorator(request, required_fields=['email', 'password', 'name', 'last_name', 'bday', 'password']) 
@@ -77,3 +91,23 @@ def signup():
         return jsonify({'error': 'Correo ya registrado'}), 400
 
 
+#REFRESH
+
+@users_bp.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    current_user = get_jwt_identity()
+    new_access_token = create_access_token(identity=current_user, fresh = False)
+    
+    return jsonify({'access_token': new_access_token}), 200
+
+#PROTECT
+# Only allow fresh JWTs to access this route 
+@users_bp.route("/protected", methods=["GET"])
+@jwt_required(fresh = True)
+def protected():
+    return jsonify(foo="bar")
+
+
+if __name__ == "__main__":
+    users_bp.run()
