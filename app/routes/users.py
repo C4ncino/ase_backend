@@ -1,8 +1,6 @@
 """
 Define user routes
 """
-from datetime import timedelta
-
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import create_refresh_token
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -15,14 +13,6 @@ from app.database import User
 
 
 users_bp = Blueprint('example_routes', __name__, url_prefix='/users')
-
-#CONFIG 
-##duda
-users_bp.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-users_bp.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
-jwt = JWTManager(users_bp)
-
-#LOG IN
 
 @users_bp.route('/login', methods=['POST'])
 @pp_decorator(request, required_fields=['email', 'password']) 
