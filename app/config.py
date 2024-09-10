@@ -8,7 +8,7 @@ load_dotenv()
 # Configura la aplicación Flask.
 class AppConfig:
     DEBUG = 1
-    HOST = os.getenv('HOST', '0.0.0.0')
+    HOST = os.getenv('HOST', '172.18.26.235')
     PORT = os.getenv('PORT', 5000)
 
     SERVER_NAME = f'{HOST}:{PORT}'

@@ -17,11 +17,11 @@ CORS(app)
 
 JWTManager(app)
 
-# -------------------------------------------------------------------s----------
+# -----------------------------------------------------------------------------
 
 app.register_blueprint(users_bp)
 app.register_blueprint(words_bp)
-#app.register_blueprint(models_bp)
+# app.register_blueprint(models_bp)
 
 # -----------------------------------------------------------------------------
 
