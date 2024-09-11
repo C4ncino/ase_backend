@@ -23,10 +23,8 @@ def validate_training():
                 return jsonify({'error': 'Cada muestra debe contener exactamente 8 valores'}), 400
 
         max_variance_allowed = 5 
-        max_inconsistent_allowed = 5
-
         inconsistent_count = 0
-        is_consistent = True
+
 
         # Verificar la coherencia en cada muestra
         for i in range(1, len(sensor_data)):
@@ -39,11 +37,8 @@ def validate_training():
             # Verificación
             if any(variance > max_variance_allowed):
                 inconsistent_count += 1
-                if len(inconsistent_count) > max_inconsistent_allowed:
-                    is_consistent = False
-                    break
-
-        if not is_consistent:
+                
+        if inconsistent_count > 0:
             return jsonify({
                 'message': 'Se encontraron lecturas inconsistentes',
                 'inconsistent_readings': inconsistent_count,
