@@ -48,6 +48,16 @@ def validate_training():
             other_flex_matrix = flex_data_np[j]
     
             flex_variance = np.var([current_flex_matrix, other_flex_matrix], axis=0)
+
             if np.any(flex_variance > max_variance_allowed):
-                pass
-        
+                inconsistent_matrices.append(i)
+                break
+
+    if len(inconsistent_matrices) > 0:
+            return jsonify({
+                'message': 'Se encontraron matrices inconsistentes',
+                'inconsistent_matrices': inconsistent_matrices,
+                'count': len(inconsistent_matrices)
+            }), 400
+    else:
+        return jsonify({'message': 'Todas las matrices son consistentes'}), 200
