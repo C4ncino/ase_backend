@@ -3,6 +3,7 @@ from .base import Base
 from sqlalchemy import Column, Integer, String, Date, TIMESTAMP
 from sqlalchemy.orm import relationship
 
+
 class User(Base):
     """
     Example Model
@@ -15,13 +16,21 @@ class User(Base):
     last_name = Column(String(20), nullable=False)
     email = Column(String(50), nullable=False, unique=True)
     bday = Column(Date, nullable=False)
-    password = Column(String(60), nullable=False)
+    password = Column(String(64), nullable=False)
     creationDate = Column(TIMESTAMP(), nullable=False, default=dt.now())
 
     # Relacion con el modelo "words"
-    words = relationship("Word", back_populates="users")  
-     # Relación con el modelo 'Model'
-    models = relationship("Model", back_populates="users", cascade="all, delete-orphan")
+    words = relationship(
+        "Word",
+        back_populates="users",
+        cascade="all, delete-orphan",
+    )
+    # Relación con el modelo 'Model'
+    models = relationship(
+        "Model",
+        back_populates="users",
+        cascade="all, delete-orphan",
+    )
 
     def serialize(self):
         """
@@ -29,7 +38,7 @@ class User(Base):
 
         Returns:
             dict: The serialized data
-        
+
         """
 
         return {

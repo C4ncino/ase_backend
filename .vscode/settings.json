@@ -1,10 +1,13 @@
 {
     "cSpell.words": [
+        "bday",
+        "dotenv",
         "gquest",
         "jsonify",
         "ncino",
         "nullable",
         "postgresql",
+        "redis",
         "sessionmaker",
         "sqlalchemy",
         "venv"

@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./api
+    restart: always
+    command: python run.py
+    volumes:
+      - ./api:/app
+    working_dir: /app
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./api/.env.dev
+    depends_on:
+      - redis
+      - db
+
+  celery:
+    build:
+        context: ./api
+    env_file:
+      - ./api/.env.dev
+    volumes:
+      - ./api:/app
+    command: celery -A app.celery_app worker --loglevel=info
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+
+  db:
+    build: ./db
+    env_file:
+      - ./db/.env.dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  redis_data:
+    driver: local

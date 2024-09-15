@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String, LargeBinary
-from .base import Base  
+from sqlalchemy import Column, Integer, String, LargeBinary, ForeignKey
+from sqlalchemy.orm import relationship
+from .base import Base
+
 
 class Model(Base):
     """
@@ -9,7 +11,12 @@ class Model(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     filename = Column(String(100), nullable=False)
-    file_data = Column(LargeBinary, nullable=False)  # Binary data for file content
+    # Binary data for file content
+    file_data = Column(LargeBinary, nullable=False)
+    # Relación con el usuario
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+
+    users = relationship("User", back_populates="models")
 
     def serialize(self):
         """

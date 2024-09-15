@@ -1,7 +1,8 @@
 
-from sqlalchemy import Column, Integer, String, JSON, TIMESTAMP, ForeignKey
+from sqlalchemy import Column, Integer, String, JSON, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
+
 
 class Word(Base):
     """
@@ -13,11 +14,11 @@ class Word(Base):
     id = Column(Integer(), primary_key=True, autoincrement=True)
     word = Column(String(50), nullable=False)
     # JSON para almacenar los datos del guante
-    sensor_data = Column(JSON, nullable=False)  
+    sensor_data = Column(JSON, nullable=False)
     # Relación con el usuario
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
-    users = relationship("User", back_populates="words")  
+    users = relationship("User", back_populates="words")
 
     def serialize(self):
         """

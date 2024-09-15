@@ -1,11 +1,9 @@
 """
 Define user routes
 """
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import create_refresh_token
-from flask_jwt_extended import get_jwt_identity, jwt_required
-
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.utils import pp_decorator
 from app.database import database
 
@@ -53,19 +51,11 @@ def login():
         fresh=True
     )
 
-    refresh_token = create_refresh_token(
-        identity={
-            'user_id': user_id,
-            'email': email
-        }
-    )
-
     # devolver token
     return jsonify(
         {
             'user': result[0].serialize(),
             'token': token,
-            'refresh_token': refresh_token
         }
     ), 200
 
@@ -76,7 +66,7 @@ def login():
     request,
     required_fields=[
         'email', 'password', 'name',
-        'last_name', 'bday', 'password'
+        'last_name', 'bday'
     ]
 )
 def signup():
@@ -103,20 +93,12 @@ def signup():
 
 # REFRESH
 @users_bp.route('/refresh', methods=['POST'])
-@jwt_required(refresh=True)
+@jwt_required()
 def refresh():
     current_user = get_jwt_identity()
-    new_access_token = create_access_token(identity=current_user, fresh=False)
+    new_access_token = create_access_token(current_user)
 
     return jsonify({'access_token': new_access_token}), 200
-
-
-# PROTECT
-# Only allow fresh JWTs to access this route
-@users_bp.route("/protected", methods=["GET"])
-@jwt_required(fresh=True)
-def protected():
-    return jsonify(foo="bar")
 
 
 # ME
@@ -128,13 +110,9 @@ def me():
     user_id = current_user.get('user_id')
 
     # Buscar el usuario en la base de datos usando el ID
-    user = database.read_by_id(user_id)
+    user = database.read_by_id('users', user_id)
 
     if user is None:
         return jsonify({'error': 'Usuario no encontrado'}), 404
 
     return jsonify({'user': user.serialize()}), 200
-
-
-if __name__ == "__main__":
-    users_bp.run()

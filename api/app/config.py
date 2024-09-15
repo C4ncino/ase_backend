@@ -7,18 +7,29 @@ load_dotenv()
 
 # Configura la aplicación Flask.
 class AppConfig:
-    DEBUG = 1
-    HOST = os.getenv('HOST', '172.18.26.235')
+    DEBUG = bool(os.getenv('DEBUG', 1))
+    HOST = os.getenv('HOST', '0.0.0.0')
     PORT = os.getenv('PORT', 5000)
-
-    SERVER_NAME = f'{HOST}:{PORT}'
 
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(
-        hours=os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 1)
+        hours=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 1))
     )
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(
-        days=os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 30)
+        days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 30))
+    )
+
+    CELERY_BROKER_URL = os.getenv(
+        'CELERY_BROKER_URL', 'redis://localhost:6379/0'
+    )
+    CELERY_RESULT_BACKEND = os.getenv(
+        'CELERY_RESULT_BACKEND', 'redis://localhost:6379/0'
+    )
+
+    CELERY = dict(
+        broker_url=CELERY_BROKER_URL,
+        result_backend=CELERY_RESULT_BACKEND,
+        task_ignore_result=True
     )
 
 
