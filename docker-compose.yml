@@ -19,11 +19,11 @@ services:
   celery:
     build:
         context: ./api
-    env_file:
-      - ./api/.env.dev
+    command: celery -A app.celery_app worker --loglevel=info
     volumes:
       - ./api:/app
-    command: celery -A app.celery_app worker --loglevel=info
+    env_file:
+      - ./api/.env.dev
     depends_on:
       - redis
 
@@ -31,8 +31,6 @@ services:
     image: redis:alpine
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
 
   db:
     build: ./db
