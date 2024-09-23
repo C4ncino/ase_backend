@@ -1,3 +1,3 @@
-from .train import add_together
+from .train import remove_by_dtw
 
-__all__ = ['add_together']
+__all__ = ['remove_by_dtw']

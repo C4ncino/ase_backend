@@ -25,12 +25,6 @@ class User(Base):
         back_populates="users",
         cascade="all, delete-orphan",
     )
-    # Relación con el modelo 'Model'
-    models = relationship(
-        "Model",
-        back_populates="users",
-        cascade="all, delete-orphan",
-    )
 
     def serialize(self):
         """

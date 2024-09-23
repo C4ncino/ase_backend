@@ -116,3 +116,19 @@ def me():
         return jsonify({'error': 'Usuario no encontrado'}), 404
 
     return jsonify({'user': user.serialize()}), 200
+
+
+@users_bp.route('/update', methods=['PUT'])
+@pp_decorator(request, optional_fields=['name', 'last_name', 'bday'])
+@jwt_required()
+def update():
+    data = request.json
+
+    user_id = get_jwt_identity().get('user_id')
+
+    success, user = database.update_table_row('users', user_id, data)
+
+    if not success:
+        return jsonify({'error': 'Fallo en la actualización'}), 500
+
+    return jsonify({'user': user.serialize()}), 200

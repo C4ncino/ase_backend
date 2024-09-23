@@ -7,8 +7,7 @@ from sqlalchemy.orm import sessionmaker, registry
 
 from .models.base import Base
 from .models.users import User
-from .models.word import Word
-from .models.models import Model
+from .models.words import Word
 
 
 class Query(dict):
@@ -37,10 +36,8 @@ class DatabaseInterface:
     """
 
     __TABLE_CLASS_MAP = {
-        # TODO: Add all your models here
         'users': User,
-        'words': Word,
-        'models' : Model
+        'words': Word
     }
 
     def __init__(self) -> None:

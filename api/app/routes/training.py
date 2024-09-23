@@ -1,63 +1,55 @@
 from flask import Blueprint, jsonify, request
-from app.database import database
 from app.utils import pp_decorator
 from flask_jwt_extended import jwt_required
-import numpy as np
+from utils import inspect_fingers
+from tasks import remove_by_dtw
+from celery.result import AsyncResult
+
 
 training_bp = Blueprint('training', __name__, url_prefix='/training')
 
+
 @training_bp.route('/validate', methods=['POST'])
+@pp_decorator(request, required_fields=['sensor_data', 'word', 'user_id'])
 @jwt_required()
-@pp_decorator(request, required_fields=['sensor_data', 'user_id']) 
 def validate_training():
+    data = request.json
 
-    data = request.json 
-
-    # Datos sensor
     sensor_data = data.get('sensor_data')
 
-    #Checa que sea una lista
     if not sensor_data or not isinstance(sensor_data, list):
         return jsonify({'error': 'sensor_data debe ser una lista'}), 400
-    
-    #Checa que sean 18 lecturas
+
     if len(sensor_data) < 18:
-        return jsonify({'error': 'Se requieren al menos 18 lecturas en sensor_data'}), 400
-    
-    #Checa que sea  60x8
-    for matrix in sensor_data:
-        if len(matrix) != 60 or len(matrix[0]) != 8:
-            return jsonify({'error': 'Cada matriz debe contener 60 filas y 8 columnas'}), 400
+        return jsonify({
+            'error': 'Se requieren al menos 18 lecturas en sensor_data'
+        }), 400
 
-    max_variance_allowed = 0.6
-    inconsistent_matrices = []
+    fatly_samples = inspect_fingers(sensor_data)
 
-    #Convierte los datos del sensor en arreglo
-    sensor_data_np = np.array(sensor_data)
+    if len(fatly_samples) > 5:
+        return jsonify({
+            'success': False,
+            'samples': fatly_samples
+        }), 400
 
-    #Flex son los primeros 5
-    #Acc inicia en el 6
-    flex_data_np = sensor_data_np[:, :5]
-    accelerometer_data_np = sensor_data_np[:, 5:]
+    task = remove_by_dtw.delay(sensor_data)
 
-    # Compara las matrices (60x8) para flex y acelerómetro por separado
-    for i in range(len(sensor_data_np)):
-        current_flex_matrix = flex_data_np[i]
+    return jsonify({
+        'success': True,
+        'message': 'Verificando movimientos',
+        'task': task.id,
+        'samples': fatly_samples
+    }), 200
 
-        for j in range(i + 1, len(sensor_data_np)):
-            other_flex_matrix = flex_data_np[j]
-    
-            flex_variance = np.var([current_flex_matrix, other_flex_matrix], axis=0)
 
-            if np.any(flex_variance > max_variance_allowed):
-                inconsistent_matrices.append(i)
-                break
+@training_bp.route('/validate/<string:task_id>', methods=['GET'])
+@jwt_required()
+def validate_check(task_id):
+    result = AsyncResult(task_id=task_id)
 
-    if len(inconsistent_matrices) > 0:
-            return jsonify({
-                'message': 'Se encontraron matrices inconsistentes',
-                'inconsistent_matrices': inconsistent_matrices,
-                'count': len(inconsistent_matrices)
-            }), 400
-    else:
-        return jsonify({'message': 'Todas las matrices son consistentes'}), 200
+    return jsonify({
+        "ready": result.ready(),
+        "successful": result.successful(),
+        "value": result.result if result.ready() else None,
+    }), 200

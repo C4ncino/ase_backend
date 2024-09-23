@@ -1,15 +1,9 @@
-import time
 from celery import shared_task
+from utils import inspect_movement
 
 
 @shared_task(ignore_result=False)
-def add_together(a: int, b: int) -> int:
-    arr = []
+def remove_by_dtw(sensor_data) -> list[int]:
+    results = inspect_movement(sensor_data)
 
-    for i in range(50000000):
-        i *= i
-        arr.append(i)
-
-    time.sleep(5)
-
-    return a + b
+    return results
