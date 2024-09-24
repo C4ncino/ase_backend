@@ -5,8 +5,8 @@ services:
     build: ./api
     restart: always
     command: python run.py
-    volumes:
-      - ./api:/app
+    # volumes:
+    #   - ./api:/app
     working_dir: /app
     ports:
       - "5000:5000"
@@ -17,11 +17,10 @@ services:
       - db
 
   celery:
-    build:
-        context: ./api
+    build: ./api
     command: celery -A app.celery_app worker --loglevel=info
-    volumes:
-      - ./api:/app
+    # volumes:
+    #   - ./api:/app
     env_file:
       - ./api/.env.dev
     depends_on:
