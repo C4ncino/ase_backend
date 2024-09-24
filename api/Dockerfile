@@ -2,6 +2,9 @@ FROM python:3.11-alpine
 
 WORKDIR /app
 
+ENV PYTHONWRITEBYTECODE 1
+ENV PYTHONBUFFERED 1
+
 RUN apk add --no-cache gcc g++ musl-dev libstdc++ 
 
 COPY requirements.txt .
