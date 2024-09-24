@@ -3,13 +3,11 @@ version: '3.8'
 services:
   api:
     build: ./api
-    restart: always
-    command: python run.py
-    working_dir: /app
-    ports:
-      - "5000:5000"
+    command: gunicorn app:app --bind 0.0.0.0:5000
     env_file:
       - ./api/.env.dev
+    ports:
+      - "5000:5000"
     depends_on:
       - redis
       - db
@@ -21,6 +19,7 @@ services:
       - ./api/.env.dev
     depends_on:
       - redis
+      - api
 
   redis:
     image: redis:alpine
