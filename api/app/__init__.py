@@ -7,7 +7,7 @@ from flask_jwt_extended import JWTManager
 
 from .config import AppConfig
 from .utils import celery_init_app
-from app.routes import base_bp, users_bp, words_bp, models_bp
+from app.routes import base_bp, users_bp, words_bp, models_bp, training_bp
 # -----------------------------------------------------------------------------
 
 app = Flask(__name__)
@@ -26,6 +26,7 @@ app.register_blueprint(base_bp)
 app.register_blueprint(users_bp)
 app.register_blueprint(words_bp)
 app.register_blueprint(models_bp)
+app.register_blueprint(training_bp)
 
 # -----------------------------------------------------------------------------
 

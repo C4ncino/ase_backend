@@ -1,5 +1,5 @@
 from celery import shared_task
-from utils import inspect_movement
+from app.utils import inspect_movement
 
 
 @shared_task(ignore_result=False)

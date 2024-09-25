@@ -3,7 +3,8 @@ version: '3.8'
 services:
   api:
     build: ./api
-    command: gunicorn app:app --bind 0.0.0.0:5000
+    # command: gunicorn app:app --bind 0.0.0.0:5000
+    command: python run.py
     env_file:
       - ./api/.env.dev
     ports:

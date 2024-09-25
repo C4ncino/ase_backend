@@ -55,4 +55,4 @@ def inspect_movement(sensor_data):
 
     bad_samples = np.where(mean_distances > threshold)[0]
 
-    return bad_samples
+    return bad_samples.tolist()
