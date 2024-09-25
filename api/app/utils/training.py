@@ -4,7 +4,7 @@ from dtaidistance import dtw
 from sklearn.neighbors import NearestNeighbors
 
 
-def inspect_fingers(sensor_data):
+def inspect_fingers(sensor_data: list[dict]) -> tuple[list[int], list[float]]:
     df_fingers = [
         pd.DataFrame(mov).loc[:, ['thumb', 'index', 'middle', 'ring', 'pinky']]
         for mov in sensor_data
@@ -28,10 +28,12 @@ def inspect_fingers(sensor_data):
 
     centroid = neighbors_within_radius.mean().values.reshape(1, -1)
 
-    return indices[0], centroid
+    bad_samples = set(df_means.index) - set(indices[0])
+
+    return list(bad_samples), centroid.tolist()
 
 
-def inspect_movement(sensor_data):
+def inspect_movement(sensor_data: list[dict]) -> list[int]:
     dfs_accel = [
         pd.DataFrame(mov).loc[:, ['x', 'y', 'z']]
         for mov in sensor_data
@@ -55,4 +57,4 @@ def inspect_movement(sensor_data):
 
     bad_samples = np.where(mean_distances > threshold)[0]
 
-    return bad_samples.tolist()
+    return bad_samples.tolist(), threshold

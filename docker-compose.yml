@@ -5,6 +5,9 @@ services:
     build: ./api
     # command: gunicorn app:app --bind 0.0.0.0:5000
     command: python run.py
+    volumes:
+      - ./api:/app
+    restart: always
     env_file:
       - ./api/.env.dev
     ports:
@@ -16,11 +19,13 @@ services:
   celery:
     build: ./api
     command: celery -A app.celery_app worker --loglevel=info
+    volumes:
+      - ./api:/app
     env_file:
       - ./api/.env.dev
     depends_on:
       - redis
-      - api
+      - db
 
   redis:
     image: redis:alpine

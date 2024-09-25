@@ -5,12 +5,7 @@ from app.tasks import remove_by_dtw
 from celery.result import AsyncResult
 
 
-training_bp = Blueprint('training', __name__, url_prefix='/training')
-
-
-@training_bp.route('')
-def h_check():
-    return jsonify({'success': True}), 200
+training_bp = Blueprint('training', __name__, url_prefix='/train')
 
 
 @training_bp.route('/validate', methods=['POST'])
@@ -27,24 +22,27 @@ def validate_training():
 
         if len(sensor_data) < 18:
             return jsonify({
-                'error': 'Se requieren al menos 18 lecturas en sensor_data'
+                'error': 'Se requieren al menos 20 lecturas en sensor_data'
             }), 400
 
-        fatly_samples, centroid = inspect_fingers(sensor_data)
+        bad_samples, centroid = inspect_fingers(sensor_data)
 
-        if len(fatly_samples) < 16:
+        if len(bad_samples) > 5:
             return jsonify({
                 'success': False,
-                'samples': fatly_samples.tolist()
-            }), 400
+                'samples': bad_samples
+            }), 200
+
+        for i in bad_samples:
+            sensor_data.pop(i)
 
         task = remove_by_dtw.delay(sensor_data)
 
         return jsonify({
             'success': True,
-            'message': 'Verificando movimientos',
             'task': task.id,
-            'samples': fatly_samples.tolist()
+            'samples': bad_samples,
+            'centroid': centroid,
         }), 200
 
     except Exception as e:
@@ -52,12 +50,18 @@ def validate_training():
 
 
 @training_bp.route('/validate/<string:task_id>')
+@pp_decorator(request, required_fields=['sensor_data', 'centroid'])
 # @jwt_required()
 def validate_check(task_id):
     result = AsyncResult(task_id)
 
     return jsonify({
         "ready": result.ready(),
-        "successful": result.successful(),
-        "value": result.result if result.ready() else None,
+        "success": result.successful(),
+        "result": result.result if result.ready() else None,
     }), 200
+
+
+@training_bp.route('', methods=['POST'])
+def train():
+    pass

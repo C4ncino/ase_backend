@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker, registry
 from .models.base import Base
 from .models.users import User
 from .models.words import Word
+from .models.data_words import Data
 
 
 class Query(dict):
@@ -64,7 +65,8 @@ class DatabaseInterface(metaclass=SingletonMeta):
 
     __TABLE_CLASS_MAP = {
         'users': User,
-        'words': Word
+        'words': Word,
+        'data_words': Data,
     }
 
     def __init__(self) -> None:

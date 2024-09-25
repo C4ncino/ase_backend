@@ -2,14 +2,14 @@ from sqlalchemy import Column, Integer, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from .base import Base
 
+
 class Data(Base):
     __tablename__ = "data_words"
 
-    id_word = Column(Integer, primary_key=True, autoincrement=True)
+    id_word = Column(Integer, ForeignKey("words.id"), primary_key=True, nullable=False)
     data = Column(JSON, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
-    users = relationship("User", back_populates="data_words")
+    words = relationship("Word", back_populates="data_words")
 
     def serialize(self):
         """

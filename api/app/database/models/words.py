@@ -13,17 +13,16 @@ class Word(Base):
 
     id = Column(Integer(), primary_key=True, autoincrement=True)
     word = Column(String(50), nullable=False)
-
-    # JSON para almacenar los datos del guante
     characteristics = Column(JSON, nullable=False)
-
-    # Binary data for file content
     model = Column(LargeBinary, nullable=False)
-
-    # Relación con el usuario
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
     users = relationship("User", back_populates="words")
+    datas = relationship(
+        "Data",
+        back_populates="words",
+        cascade="all, delete-orphan",
+    )
 
     def serialize(self):
         """
