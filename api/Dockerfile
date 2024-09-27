@@ -1,11 +1,16 @@
-FROM python:3.11-alpine
+FROM python:3.10-slim
 
 WORKDIR /app
 
 ENV PYTHONWRITEBYTECODE 1
 ENV PYTHONBUFFERED 1
 
-RUN apk add --no-cache gcc g++ musl-dev libstdc++ 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    netcat-openbsd \
+    supervisor \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
@@ -17,6 +22,8 @@ RUN sed -i 's/\r$//g' /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 COPY . .
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 EXPOSE 5000
 

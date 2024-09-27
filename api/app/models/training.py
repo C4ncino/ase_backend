@@ -4,7 +4,7 @@ from dtaidistance import dtw
 from sklearn.neighbors import NearestNeighbors
 
 
-def inspect_fingers(sensor_data: list[dict]) -> tuple[list[int], list[float]]:
+def get_centroid(sensor_data: list[dict]) -> tuple[pd.DataFrame, np.ndarray, float]:
     df_fingers = [
         pd.DataFrame(mov).loc[:, ['thumb', 'index', 'middle', 'ring', 'pinky']]
         for mov in sensor_data
@@ -18,22 +18,32 @@ def inspect_fingers(sensor_data: list[dict]) -> tuple[list[int], list[float]]:
 
     radius = np.mean(distances) + 2 * np.std(distances)
 
+    return df_means, centroid, radius
+
+
+def inspect_fingers(sensor_data: list[dict]) -> tuple[list[int], list[float]]:
+    df_means, centroid, radius = get_centroid(sensor_data)
+
     knn = NearestNeighbors(radius=radius)
 
     knn.fit(df_means)
 
     _, indices = knn.radius_neighbors(centroid)
 
-    neighbors_within_radius: pd.DataFrame = df_means.iloc[indices[0]]
+    # neighbors_within_radius: pd.DataFrame = df_means.iloc[indices[0]]
 
-    centroid = neighbors_within_radius.mean().values.reshape(1, -1)
+    # centroid = neighbors_within_radius.mean().values.reshape(1, -1)
 
     bad_samples = set(df_means.index) - set(indices[0])
 
-    return list(bad_samples), centroid.tolist()
+    return list(bad_samples)
 
 
-def inspect_movement(sensor_data: list[dict]) -> list[int]:
+def calc_threshold(df: pd.DataFrame) -> float:
+    return np.mean(df) + 2 * np.std(df)
+
+
+def inspect_movement(sensor_data: list[dict]) -> tuple[list[int], float]:
     dfs_accel = [
         pd.DataFrame(mov).loc[:, ['x', 'y', 'z']]
         for mov in sensor_data
@@ -53,8 +63,16 @@ def inspect_movement(sensor_data: list[dict]) -> list[int]:
 
     mean_distances = np.mean(distances, axis=1)
 
-    threshold = np.mean(mean_distances) + 2 * np.std(mean_distances)
+    threshold = calc_threshold(mean_distances)
 
     bad_samples = np.where(mean_distances > threshold)[0]
 
+    good_samples = np.where(mean_distances <= threshold)[0]
+
+    threshold = calc_threshold(good_samples)
+
     return bad_samples.tolist(), threshold
+
+
+def train(sensor_data: list[dict]):
+    pass
