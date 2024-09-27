@@ -58,3 +58,7 @@ def inspect_movement(sensor_data: list[dict]) -> list[int]:
     bad_samples = np.where(mean_distances > threshold)[0]
 
     return bad_samples.tolist(), threshold
+
+
+def train():
+    pass

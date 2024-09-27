@@ -1,8 +1,10 @@
-from flask import Blueprint, jsonify, request
-from app.utils import pp_decorator, inspect_fingers
-# from flask_jwt_extended import jwt_required
-from app.tasks import remove_by_dtw
 from celery.result import AsyncResult
+# from flask_jwt_extended import jwt_required
+from flask import Blueprint, jsonify, request
+
+from app.utils import pp_decorator
+from app.tasks import remove_by_dtw
+from app.models import inspect_fingers
 
 
 training_bp = Blueprint('training', __name__, url_prefix='/train')
@@ -22,7 +24,7 @@ def validate_training():
 
         if len(sensor_data) < 18:
             return jsonify({
-                'error': 'Se requieren al menos 20 lecturas en sensor_data'
+                'error': 'Se requieren al menos 18 lecturas en sensor_data'
             }), 400
 
         bad_samples, centroid = inspect_fingers(sensor_data)
