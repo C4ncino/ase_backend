@@ -1,3 +1,3 @@
-from .training import inspect_movement, inspect_fingers
+from .training import inspect_movement, inspect_fingers, get_centroid
 
-__all__ = ['inspect_movement', 'inspect_fingers']
+__all__ = ['inspect_movement', 'inspect_fingers', 'get_centroid']
