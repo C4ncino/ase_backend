@@ -4,12 +4,14 @@
         "dotenv",
         "gquest",
         "jsonify",
+        "keras",
         "ncino",
         "nullable",
         "postgresql",
         "redis",
         "sessionmaker",
         "sqlalchemy",
+        "tensorflow",
         "venv"
     ]
 }
