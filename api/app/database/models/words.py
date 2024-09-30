@@ -18,7 +18,7 @@ class Word(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
     users = relationship("User", back_populates="words")
-    datas = relationship(
+    data_words = relationship(
         "Data",
         back_populates="words",
         cascade="all, delete-orphan",
