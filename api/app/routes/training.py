@@ -34,8 +34,8 @@ def validate_training():
             'samples': bad_samples
         }), 200
 
-    for i in bad_samples:
-        sensor_data.pop(i)
+    for i in sorted(bad_samples, reverse=True):
+        del sensor_data[i]
 
     task = remove_by_dtw.delay(sensor_data)
 
