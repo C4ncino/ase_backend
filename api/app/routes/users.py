@@ -92,7 +92,7 @@ def signup():
 
 
 # REFRESH
-@users_bp.route('/refresh', methods=['POST'])
+@users_bp.route('/refresh')
 @jwt_required()
 def refresh():
     current_user = get_jwt_identity()
@@ -102,7 +102,7 @@ def refresh():
 
 
 # ME
-@users_bp.route('/me', methods=['GET'])
+@users_bp.route('/me')
 @jwt_required()
 def me():
     # Obtener el ID de usuario encriptado desde el token
