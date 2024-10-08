@@ -4,66 +4,66 @@ from tensorflow.keras.models import Model
 
 
 def get_LSTM_v1() -> Model:
-
     return Sequential([
-    layers.LSTM(38, input_shape=(55, 8), return_sequences=True),
-    layers.Dropout(0.1),                                                    
-    layers.LSTM(16),                                                         
-    layers.Dropout(0.2),   
-    layers.Dense(8, activation= 'relu'),
-    layers.Dropout(0.3),                                              
-    layers.Dense(1, activation='sigmoid')
+        layers.LSTM(38, input_shape=(55, 8), return_sequences=True),
+        layers.Dropout(0.1),
+        layers.LSTM(16),
+        layers.Dropout(0.2),
+        layers.Dense(8, activation='relu'),
+        layers.Dropout(0.3),
+        layers.Dense(1, activation='sigmoid')
     ])
+
 
 def get_LSTM_v2() -> Model:
-
     return Sequential([
-    layers.LSTM(36, input_shape=(55, 8), return_sequences=True),
-    layers.Dropout(0.1),                                                    
-    layers.LSTM(16),                                                         
-    layers.Dropout(0.2),   
-    layers.Dense(8, activation= 'relu'),
-    layers.Dropout(0.3),                                              
-    layers.Dense(1, activation='sigmoid')
+        layers.LSTM(36, input_shape=(55, 8), return_sequences=True),
+        layers.Dropout(0.1),
+        layers.LSTM(16),
+        layers.Dropout(0.2),
+        layers.Dense(8, activation='relu'),
+        layers.Dropout(0.3),
+        layers.Dense(1, activation='sigmoid')
     ])
+
 
 def get_LSTM_v3() -> Model:
-
     return Sequential([
-    layers.LSTM(36, input_shape=(55, 8), return_sequences=True),
-    layers.Dropout(0.1),                                                    
-    layers.LSTM(16),                                                         
-    layers.Dropout(0.3),   
-    layers.Dense(8, activation= 'relu'),
-    layers.Dropout(0.4),                                              
-    layers.Dense(1, activation='sigmoid')
+        layers.LSTM(36, input_shape=(55, 8), return_sequences=True),
+        layers.Dropout(0.1),
+        layers.LSTM(16),
+        layers.Dropout(0.3),
+        layers.Dense(8, activation='relu'),
+        layers.Dropout(0.4),
+        layers.Dense(1, activation='sigmoid')
     ])
+
+
 def get_LSTM_v4() -> Model:
-
     return Sequential([
-    layers.LSTM(20, input_shape=(55, 8), return_sequences=True),
-    layers.Dropout(0.1),                                                    
-    layers.LSTM(30),                                                         
-    layers.Dropout(0.2),   
-    layers.Dense(10, activation= 'relu'),
-    layers.Dropout(0.4),                                              
-    layers.Dense(1, activation='sigmoid')
+        layers.LSTM(20, input_shape=(55, 8), return_sequences=True),
+        layers.Dropout(0.1),
+        layers.LSTM(30),
+        layers.Dropout(0.2),
+        layers.Dense(10, activation='relu'),
+        layers.Dropout(0.4),
+        layers.Dense(1, activation='sigmoid')
     ])
+
 
 def get_LSTM_v5() -> Model:
-
     return Sequential([
-    layers.LSTM(38, input_shape=(55, 8), return_sequences=True),
-    layers.Dropout(0.1),                                                    
-    layers.LSTM(16),                                                         
-    layers.Dropout(0.2),   
-    layers.Dense(10, activation= 'relu'),
-    layers.Dropout(0.4),                                              
-    layers.Dense(1, activation='sigmoid')
+        layers.LSTM(38, input_shape=(55, 8), return_sequences=True),
+        layers.Dropout(0.1),
+        layers.LSTM(16),
+        layers.Dropout(0.2),
+        layers.Dense(10, activation='relu'),
+        layers.Dropout(0.4),
+        layers.Dense(1, activation='sigmoid')
     ])
-#-------------------------------------------------
-def get_GRU_v1() -> Model:
 
+
+def get_GRU_v1() -> Model:
     return Sequential([
         layers.GRU(16, input_shape=(55, 8), return_sequences=True),
         layers.Dropout(0.4),
@@ -74,8 +74,8 @@ def get_GRU_v1() -> Model:
         layers.Dense(1, activation='sigmoid')
     ])
 
-def get_GRU_v2() -> Model:
 
+def get_GRU_v2() -> Model:
     return Sequential([
         layers.GRU(32, input_shape=(55, 8), return_sequences=True),
         layers.Dropout(0.2),
@@ -85,8 +85,9 @@ def get_GRU_v2() -> Model:
         layers.Dropout(0.2),
         layers.Dense(1, activation='sigmoid')
     ])
-def get_GRU_v3() -> Model:
 
+
+def get_GRU_v3() -> Model:
     return Sequential([
         layers.GRU(32, input_shape=(55, 8), return_sequences=True),
         layers.Dropout(0.4),
@@ -96,8 +97,9 @@ def get_GRU_v3() -> Model:
         layers.Dropout(0.3),
         layers.Dense(1, activation='sigmoid')
     ])
-def get_GRU_v4() -> Model:
 
+
+def get_GRU_v4() -> Model:
     return Sequential([
         layers.GRU(32, input_shape=(55, 8), return_sequences=True),
         layers.Dropout(0.2),
@@ -108,8 +110,8 @@ def get_GRU_v4() -> Model:
         layers.Dense(1, activation='sigmoid')
     ])
 
-def get_GRU_v5() -> Model:
 
+def get_GRU_v5() -> Model:
     return Sequential([
         layers.GRU(16, input_shape=(55, 8), return_sequences=True),
         layers.Dropout(0.1),
@@ -119,6 +121,7 @@ def get_GRU_v5() -> Model:
         layers.Dropout(0.2),
         layers.Dense(1, activation='sigmoid')
     ])
+
 
 def get_model(type: str) -> Model:
     model = None
