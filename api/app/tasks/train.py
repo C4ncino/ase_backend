@@ -1,6 +1,7 @@
 from celery import shared_task
-from app.models import inspect_movement, get_centroid, MODEL_POOL
+from app.models import inspect_movement, get_centroid, MODEL_POOL, calculate_metrics
 # from app.database import database
+from tensorflow.keras.models import Model
 
 
 @shared_task(ignore_result=False)
@@ -20,9 +21,61 @@ def remove_by_dtw(sensor_data: list[dict]) -> list[int]:
 @shared_task(ignore_result=True, bind=True)
 def train(self, sensor_data: list[dict], word: str):
     # TODO: Training with update
-    # Select a model from de model pool
-    # Train the model and save model and metrics
-    # search better metrics
-    # save in database
+    from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 
-    pass
+    # Inicializar variables para almacenar el mejor modelo y sus métricas
+    best_model = None
+    best_metrics = None
+    best_model_name = None
+
+    # Probar cada modelo en el MODEL_POOL
+    for model_name, get_model_fn in MODEL_POOL.items():
+        model = get_model_fn()
+
+        # Preparar los datos para el entrenamiento y la validación
+        X_train, X_val, y_train, y_val = prepare_data(sensor_data, word)
+
+        # Entrenar el modelo
+        history = model.fit(
+            X_train,
+            y_train,
+            epochs=20,
+            batch_size=8,
+            validation_data=(X_val, y_val),
+            verbose=0  
+        )
+
+        # Obtener predicciones en el conjunto de validación
+        y_pred = model.predict(X_val)
+        y_pred = (y_pred > 0.5).astype(int)
+
+        # Calcular las métricas para este modelo
+        metrics = calculate_metrics(y_val, y_pred)
+
+        # Si es el primer modelo o tiene mejores métricas que el mejor hasta ahora, actualizar
+        if best_metrics is None or compare_metrics(metrics, best_metrics):
+            best_model = model
+            best_metrics = metrics
+            best_model_name = model_name
+
+    # Guardar el mejor modelo
+    if best_model:
+        save_model(best_model, best_model_name)
+
+
+def prepare_data(sensor_data: list[dict], word: str):
+    X_train, X_val, y_train, y_val = [], [], [], [] 
+    return X_train, X_val, y_train, y_val
+
+def compare_metrics(metrics, best_metrics):
+    return metrics['f1_score'] > best_metrics['f1_score']
+
+
+def save_model(model: Model, model_name: str, metrics):
+    model.save(f'model_{model_name}.h5')
+    with open(f'metrics_{model_name}.json', 'w') as f:
+        import json
+        json.dump(metrics, f)
+
+    print(f"Mejor modelo guardado: {model_name}")
+    print("Métricas:", metrics)

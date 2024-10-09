@@ -1,5 +1,6 @@
 from .training import inspect_movement, inspect_fingers, get_centroid
 from .models import get_model
+from .metrics import calculate_metrics
 
 MODEL_POOL = {
     'L1': get_model('L1'),
@@ -19,4 +20,5 @@ __all__ = [
     'inspect_fingers',
     'get_centroid',
     'MODEL_POOL',
+    'calculate_metrics'
 ]
