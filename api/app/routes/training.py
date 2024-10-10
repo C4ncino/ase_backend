@@ -28,7 +28,7 @@ def validate_training():
 
     sensor_data = data.get('sensor_data')
 
-    if not sensor_data or not isinstance(sensor_data, list):
+    if not sensor_data or not isinstance( sensor_data, list):
         return jsonify({'error': 'sensor_data debe ser una lista'}), 400
 
     if len(sensor_data) < 18:
@@ -105,7 +105,7 @@ def train():
         with open(model_path, 'rb') as f:
             model_content = f.read()
 
-         # Guardar la representación en base64 en la base de datos
+        # Guardar la representación en base64 en la base de datos
         # model_instance = Model(
         #     filename='lstm_model.h5',
         #     file_data=model_base64  # Almacena la representación base64 del archivo

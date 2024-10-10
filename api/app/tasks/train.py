@@ -2,6 +2,9 @@ from celery import shared_task
 from app.models import inspect_movement, get_centroid, MODEL_POOL, calculate_metrics
 # from app.database import database
 from tensorflow.keras.models import Model
+import numpy as np
+import pandas as pd
+
 
 
 @shared_task(ignore_result=False)
@@ -21,7 +24,6 @@ def remove_by_dtw(sensor_data: list[dict]) -> list[int]:
 @shared_task(ignore_result=True, bind=True)
 def train(self, sensor_data: list[dict], word: str):
     # TODO: Training with update
-    from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 
     # Inicializar variables para almacenar el mejor modelo y sus métricas
     best_model = None
@@ -29,8 +31,7 @@ def train(self, sensor_data: list[dict], word: str):
     best_model_name = None
 
     # Probar cada modelo en el MODEL_POOL
-    for model_name, get_model_fn in MODEL_POOL.items():
-        model = get_model_fn()
+    for model_name, model in MODEL_POOL.items():
 
         # Preparar los datos para el entrenamiento y la validación
         X_train, X_val, y_train, y_val = prepare_data(sensor_data, word)
@@ -64,7 +65,15 @@ def train(self, sensor_data: list[dict], word: str):
 
 
 def prepare_data(sensor_data: list[dict], word: str):
-    X_train, X_val, y_train, y_val = [], [], [], [] 
+    n_samples = len(data)
+    data = np.array([pd.DataFrame(i).values for i in sensor_data])
+    labels = np.array([1]*n_samples)
+
+    train_size = int(0.8 * n_samples)
+    indices = np.random.permutation(n_samples)
+    train_indices, val_indices = indices[:train_size], indices[train_size:]
+    X_train, X_val = data[train_indices], data[val_indices]
+    y_train, y_val = labels[train_indices], labels[val_indices]
     return X_train, X_val, y_train, y_val
 
 def compare_metrics(metrics, best_metrics):
