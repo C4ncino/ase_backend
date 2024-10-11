@@ -47,8 +47,8 @@ def train(self, sensor_data: list[dict], word: str):
         )
 
         # Obtener predicciones en el conjunto de validación
-        y_pred = model.predict(X_val)
-        y_pred = (y_pred > 0.5).astype(int)
+        y_pred_prob = model.predict(X_val)
+        y_pred = (y_pred_prob > 0.5).astype(int)
 
         # Calcular las métricas para este modelo
         metrics = calculate_metrics(y_val, y_pred)
@@ -77,7 +77,35 @@ def prepare_data(sensor_data: list[dict], word: str):
     return X_train, X_val, y_train, y_val
 
 def compare_metrics(metrics, best_metrics):
-    return metrics['f1_score'] > best_metrics['f1_score']
+    # Comparar AUC-ROC primero
+    if metrics['roc_auc'] > best_metrics['roc_auc']:
+        return True
+    elif metrics['roc_auc'] == best_metrics['roc_auc']:
+        # Comparar F1-Score si AUC-ROC es igual
+        if metrics['f1_score'] > best_metrics['f1_score']:
+            return True
+        elif metrics['f1_score'] == best_metrics['f1_score']:
+            # Comparar Precision si F1-Score es igual
+            if metrics['precision'] > best_metrics['precision']:
+                return True
+            elif metrics['precision'] == best_metrics['precision']:
+                # Comparar Recall si Precision es igual
+                if metrics['recall'] > best_metrics['recall']:
+                    return True
+                elif metrics['recall'] == best_metrics['recall']:
+                    # Comparar Accuracy si Recall es igual
+                    if metrics['accuracy'] > best_metrics['accuracy']:
+                        return True
+                    else:
+                        return False  # Si Accuracy tampoco es mejor, no reemplazar
+                else:
+                    return False  # Si Recall no es mejor, no reemplazar
+            else:
+                return False  # Si Precision no es mejor, no reemplazar
+        else:
+            return False  # Si F1-Score no es mejor, no reemplazar
+    else:
+        return False  # Si AUC-ROC no es mejor, no reemplazar
 
 
 def save_model(model: Model, model_name: str, metrics):
