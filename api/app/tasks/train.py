@@ -3,7 +3,7 @@ from celery import shared_task
 from app.models import inspect_movement, get_centroid
 from app.models import prepare_data, MODEL_POOL
 from app.models import calculate_metrics, compare_metrics
-from app.models import save_model_as_tensorflowjs
+from app.models import convert_model_to_tfjs
 
 
 @shared_task(ignore_result=False)
@@ -51,6 +51,6 @@ def train_models(sensor_data: list[dict], db_info: dict) -> dict:
             best_model = model
             best_metrics = metrics
 
-    model_info = save_model_as_tensorflowjs(best_model)
+    model_info = convert_model_to_tfjs(best_model)
 
     return model_info, db_info, sensor_data

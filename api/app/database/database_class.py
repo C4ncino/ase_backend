@@ -10,7 +10,7 @@ from .models.base import Base
 from .models.users import User
 from .models.words import Word
 from .models.data_words import Data
-from models.models import Model
+from .models.user_models import Model
 
 
 class Query(dict):
