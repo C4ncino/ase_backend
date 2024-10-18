@@ -1,6 +1,8 @@
-from .training import inspect_movement, inspect_fingers, get_centroid
+from .validate import inspect_movement, inspect_fingers, get_centroid
+from .train import prepare_data
 from .models import get_model
-from .metrics import calculate_metrics
+from .metrics import calculate_metrics, compare_metrics
+from .save import save_model_as_tensorflowjs
 
 MODEL_POOL = {
     'L1': get_model('L1'),
@@ -20,5 +22,7 @@ __all__ = [
     'inspect_fingers',
     'get_centroid',
     'MODEL_POOL',
-    'calculate_metrics'
+    'calculate_metrics',
+    'prepare_data',
+    'compare_metrics'
 ]

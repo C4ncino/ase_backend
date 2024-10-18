@@ -72,7 +72,3 @@ def inspect_movement(sensor_data: list[dict]) -> tuple[list[int], float]:
     threshold = calc_threshold(good_samples)
 
     return bad_samples.tolist(), threshold
-
-
-def train(sensor_data: list[dict]):
-    pass

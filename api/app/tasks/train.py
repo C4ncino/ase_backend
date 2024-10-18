@@ -1,7 +1,7 @@
 from celery import shared_task
 from app.models import inspect_movement, get_centroid, MODEL_POOL, calculate_metrics
-# from app.database import database
-from tensorflow.keras.models import Model
+from app.models import prepare_data, compare_metrics, save_model_as_tensorflowjs
+from app.database import database
 import numpy as np
 import pandas as pd
 
@@ -16,28 +16,29 @@ def remove_by_dtw(sensor_data: list[dict]) -> list[int]:
 
     _, centroid, radius = get_centroid(sensor_data)
 
+
+
+
     # TODO: add info to database
 
-    return bad_samples
+
+
 
 
 @shared_task(ignore_result=True, bind=True)
-def train(self, sensor_data: list[dict], word: str):
+def train_models(self, sensor_data: list[dict]):
     # TODO: Training with update
 
     # Inicializar variables para almacenar el mejor modelo y sus métricas
     best_model = None
     best_metrics = None
-    best_model_name = None
+
+    # Preparar los datos para el entrenamiento y la validación
+    X_train, X_val, y_train, y_val = prepare_data(sensor_data)
 
     # Probar cada modelo en el MODEL_POOL
-    for model_name, model in MODEL_POOL.items():
-
-        # Preparar los datos para el entrenamiento y la validación
-        X_train, X_val, y_train, y_val = prepare_data(sensor_data, word)
-
-        # Entrenar el modelo
-        history = model.fit(
+    for _, model in MODEL_POOL.items():
+        model.fit(
             X_train,
             y_train,
             epochs=20,
@@ -53,66 +54,16 @@ def train(self, sensor_data: list[dict], word: str):
         # Calcular las métricas para este modelo
         metrics = calculate_metrics(y_val, y_pred)
 
-        # Si es el primer modelo o tiene mejores métricas que el mejor hasta ahora, actualizar
-        if best_metrics is None or compare_metrics(metrics, best_metrics):
+        if best_metrics is None:
             best_model = model
             best_metrics = metrics
-            best_model_name = model_name
+            continue
 
-    # Guardar el mejor modelo
-    if best_model:
-        save_model(best_model, best_model_name)
+        # Si es el primer modelo o tiene mejores métricas que el mejor hasta ahora, actualizar
+        if compare_metrics(metrics, best_metrics):
+            best_model = model
+            best_metrics = metrics
 
+    model_params = save_model_as_tensorflowjs(best_model)
 
-def prepare_data(sensor_data: list[dict], word: str):
-    n_samples = len(data)
-    data = np.array([pd.DataFrame(i).values for i in sensor_data])
-    labels = np.array([1]*n_samples)
-
-    train_size = int(0.8 * n_samples)
-    indices = np.random.permutation(n_samples)
-    train_indices, val_indices = indices[:train_size], indices[train_size:]
-    X_train, X_val = data[train_indices], data[val_indices]
-    y_train, y_val = labels[train_indices], labels[val_indices]
-    return X_train, X_val, y_train, y_val
-
-def compare_metrics(metrics, best_metrics):
-    # Comparar AUC-ROC primero
-    if metrics['roc_auc'] > best_metrics['roc_auc']:
-        return True
-    elif metrics['roc_auc'] == best_metrics['roc_auc']:
-        # Comparar F1-Score si AUC-ROC es igual
-        if metrics['f1_score'] > best_metrics['f1_score']:
-            return True
-        elif metrics['f1_score'] == best_metrics['f1_score']:
-            # Comparar Precision si F1-Score es igual
-            if metrics['precision'] > best_metrics['precision']:
-                return True
-            elif metrics['precision'] == best_metrics['precision']:
-                # Comparar Recall si Precision es igual
-                if metrics['recall'] > best_metrics['recall']:
-                    return True
-                elif metrics['recall'] == best_metrics['recall']:
-                    # Comparar Accuracy si Recall es igual
-                    if metrics['accuracy'] > best_metrics['accuracy']:
-                        return True
-                    else:
-                        return False  # Si Accuracy tampoco es mejor, no reemplazar
-                else:
-                    return False  # Si Recall no es mejor, no reemplazar
-            else:
-                return False  # Si Precision no es mejor, no reemplazar
-        else:
-            return False  # Si F1-Score no es mejor, no reemplazar
-    else:
-        return False  # Si AUC-ROC no es mejor, no reemplazar
-
-
-def save_model(model: Model, model_name: str, metrics):
-    model.save(f'model_{model_name}.h5')
-    with open(f'metrics_{model_name}.json', 'w') as f:
-        import json
-        json.dump(metrics, f)
-
-    print(f"Mejor modelo guardado: {model_name}")
-    print("Métricas:", metrics)
+    return model_params
