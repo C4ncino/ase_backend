@@ -1,10 +1,9 @@
 from celery import shared_task
-from app.models import inspect_movement, get_centroid, MODEL_POOL, calculate_metrics
-from app.models import prepare_data, compare_metrics, save_model_as_tensorflowjs
-from app.database import database
-import numpy as np
-import pandas as pd
 
+from app.models import inspect_movement, get_centroid
+from app.models import prepare_data, MODEL_POOL
+from app.models import calculate_metrics, compare_metrics
+from app.models import save_model_as_tensorflowjs
 
 
 @shared_task(ignore_result=False)
@@ -16,42 +15,31 @@ def remove_by_dtw(sensor_data: list[dict]) -> list[int]:
 
     _, centroid, radius = get_centroid(sensor_data)
 
+    return bad_samples, threshold, centroid, radius
 
 
-
-    # TODO: add info to database
-
-
-
-
-
-@shared_task(ignore_result=True, bind=True)
-def train_models(self, sensor_data: list[dict]):
-    # TODO: Training with update
-
-    # Inicializar variables para almacenar el mejor modelo y sus métricas
+@shared_task(ignore_result=True)
+def train_models(sensor_data: list[dict], db_info: dict) -> dict:
     best_model = None
     best_metrics = None
 
-    # Preparar los datos para el entrenamiento y la validación
-    X_train, X_val, y_train, y_val = prepare_data(sensor_data)
+    user_id = db_info['user_id']
 
-    # Probar cada modelo en el MODEL_POOL
+    x_train, x_val, y_train, y_val = prepare_data(sensor_data, user_id)
+
     for _, model in MODEL_POOL.items():
         model.fit(
-            X_train,
+            x_train,
             y_train,
             epochs=20,
             batch_size=8,
-            validation_data=(X_val, y_val),
-            verbose=0  
+            validation_data=(x_val, y_val),
+            verbose=0
         )
 
-        # Obtener predicciones en el conjunto de validación
-        y_pred_prob = model.predict(X_val)
+        y_pred_prob = model.predict(x_val)
         y_pred = (y_pred_prob > 0.5).astype(int)
 
-        # Calcular las métricas para este modelo
         metrics = calculate_metrics(y_val, y_pred)
 
         if best_metrics is None:
@@ -59,11 +47,10 @@ def train_models(self, sensor_data: list[dict]):
             best_metrics = metrics
             continue
 
-        # Si es el primer modelo o tiene mejores métricas que el mejor hasta ahora, actualizar
         if compare_metrics(metrics, best_metrics):
             best_model = model
             best_metrics = metrics
 
-    model_params = save_model_as_tensorflowjs(best_model)
+    model_info = save_model_as_tensorflowjs(best_model)
 
-    return model_params
+    return model_info, db_info, sensor_data

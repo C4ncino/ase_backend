@@ -2,7 +2,7 @@ from .validate import inspect_movement, inspect_fingers, get_centroid
 from .train import prepare_data
 from .models import get_model
 from .metrics import calculate_metrics, compare_metrics
-from .save import save_model_as_tensorflowjs
+from .convert import convert_model_to_tfjs
 
 MODEL_POOL = {
     'L1': get_model('L1'),
@@ -24,5 +24,6 @@ __all__ = [
     'MODEL_POOL',
     'calculate_metrics',
     'prepare_data',
-    'compare_metrics'
+    'compare_metrics',
+    'convert_model_to_tfjs'
 ]

@@ -12,6 +12,7 @@
         "sessionmaker",
         "sqlalchemy",
         "tensorflow",
+        "tfjs",
         "venv"
     ]
 }

@@ -10,6 +10,7 @@ from .models.base import Base
 from .models.users import User
 from .models.words import Word
 from .models.data_words import Data
+from models.models import Model
 
 
 class Query(dict):
@@ -54,7 +55,7 @@ class DatabaseInterface(metaclass=SingletonMeta):
         read_by_id(table_name: str, element_id: int | str)
         read_by_field(table_name: str, field: str, value: str, comparison='eq')
         read_by_fields(table_name: str, queries: list[Query])
-        update_table_row(table_name: str, element_id: int | str, row_info: dict)
+        update_table_row(table_name: str, element_id: int | str, row_info: dict) # noqa
         delete_table_row(table_name: str, id_element: int | str)
 
     attributes:
@@ -65,6 +66,7 @@ class DatabaseInterface(metaclass=SingletonMeta):
 
     __TABLE_CLASS_MAP = {
         'users': User,
+        'models': Model,
         'words': Word,
         'data_words': Data,
     }

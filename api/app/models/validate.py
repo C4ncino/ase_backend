@@ -30,10 +30,6 @@ def inspect_fingers(sensor_data: list[dict]) -> tuple[list[int], list[float]]:
 
     _, indices = knn.radius_neighbors(centroid)
 
-    # neighbors_within_radius: pd.DataFrame = df_means.iloc[indices[0]]
-
-    # centroid = neighbors_within_radius.mean().values.reshape(1, -1)
-
     bad_samples = set(df_means.index) - set(indices[0])
 
     return list(bad_samples)

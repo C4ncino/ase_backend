@@ -5,7 +5,7 @@ from tensorflow.keras.models import Model
 
 def get_LSTM_v1() -> Model:
     return Sequential([
-        layers.Input(shape=(55,8)),
+        layers.Input(shape=(55, 8)),
         layers.LSTM(38, return_sequences=True),
         layers.Dropout(0.1),
         layers.LSTM(16),
@@ -18,7 +18,7 @@ def get_LSTM_v1() -> Model:
 
 def get_LSTM_v2() -> Model:
     return Sequential([
-        layers.Input(shape=(55,8)),
+        layers.Input(shape=(55, 8)),
         layers.LSTM(36, return_sequences=True),
         layers.Dropout(0.1),
         layers.LSTM(16),
@@ -31,7 +31,7 @@ def get_LSTM_v2() -> Model:
 
 def get_LSTM_v3() -> Model:
     return Sequential([
-        layers.Input(shape=(55,8)),
+        layers.Input(shape=(55, 8)),
         layers.LSTM(36, return_sequences=True),
         layers.Dropout(0.1),
         layers.LSTM(16),
@@ -44,7 +44,7 @@ def get_LSTM_v3() -> Model:
 
 def get_LSTM_v4() -> Model:
     return Sequential([
-        layers.Input(shape=(55,8)),
+        layers.Input(shape=(55, 8)),
         layers.LSTM(20, return_sequences=True),
         layers.Dropout(0.1),
         layers.LSTM(30),
@@ -57,7 +57,7 @@ def get_LSTM_v4() -> Model:
 
 def get_LSTM_v5() -> Model:
     return Sequential([
-        layers.Input(shape=(55,8)),
+        layers.Input(shape=(55, 8)),
         layers.LSTM(38, return_sequences=True),
         layers.Dropout(0.1),
         layers.LSTM(16),
@@ -70,7 +70,7 @@ def get_LSTM_v5() -> Model:
 
 def get_GRU_v1() -> Model:
     return Sequential([
-        layers.Input(shape=(55,8)),
+        layers.Input(shape=(55, 8)),
         layers.GRU(16, return_sequences=True),
         layers.Dropout(0.4),
         layers.GRU(32),
@@ -83,7 +83,7 @@ def get_GRU_v1() -> Model:
 
 def get_GRU_v2() -> Model:
     return Sequential([
-        layers.Input(shape=(55,8)),
+        layers.Input(shape=(55, 8)),
         layers.GRU(32, return_sequences=True),
         layers.Dropout(0.2),
         layers.GRU(8),
@@ -96,8 +96,8 @@ def get_GRU_v2() -> Model:
 
 def get_GRU_v3() -> Model:
     return Sequential([
-        layers.Input(shape=(55,8)),
-        layers.GRU(32, input_shape=(55, 8), return_sequences=True),
+        layers.Input(shape=(55, 8)),
+        layers.GRU(32, return_sequences=True),
         layers.Dropout(0.4),
         layers.GRU(8),
         layers.Dropout(0.4),
@@ -109,7 +109,7 @@ def get_GRU_v3() -> Model:
 
 def get_GRU_v4() -> Model:
     return Sequential([
-        layers.Input(shape=(55,8)),
+        layers.Input(shape=(55, 8)),
         layers.GRU(32, return_sequences=True),
         layers.Dropout(0.2),
         layers.GRU(8),
@@ -122,7 +122,7 @@ def get_GRU_v4() -> Model:
 
 def get_GRU_v5() -> Model:
     return Sequential([
-        layers.Input(shape=(55,8)),
+        layers.Input(shape=(55, 8)),
         layers.GRU(16, return_sequences=True),
         layers.Dropout(0.1),
         layers.GRU(12),

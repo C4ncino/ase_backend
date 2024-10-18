@@ -2,6 +2,7 @@ from celery.result import AsyncResult
 # from flask_jwt_extended import jwt_required
 from flask import Blueprint, jsonify, request
 
+from app.database import database
 from app.utils import pp_decorator
 from app.tasks import remove_by_dtw, train_models
 from app.models import inspect_fingers
@@ -18,7 +19,7 @@ def validate_training():
 
     sensor_data = data.get('sensor_data')
 
-    if not sensor_data or not isinstance( sensor_data, list):
+    if not sensor_data or not isinstance(sensor_data, list):
         return jsonify({'error': 'sensor_data debe ser una lista'}), 400
 
     if len(sensor_data) < 18:
@@ -51,29 +52,52 @@ def validate_training():
 def validate_check(task_id):
     result = AsyncResult(task_id)
 
+    if result.ready() and result.successful():
+        bad_samples, threshold, centroid, radius = result.result
+
+        return jsonify({
+            "ready": result.ready(),
+            "success": result.successful(),
+            "result": {
+                "bad_samples": bad_samples,
+                "threshold": threshold,
+                "centroid": centroid,
+                "radius": radius
+            },
+        }), 200
+
     return jsonify({
         "ready": result.ready(),
         "success": result.successful(),
-        "bad_samples": result.result if result.ready() else None,
+        "result": {
+            "bad_samples": None,
+            "threshold": None,
+            "centroid": None,
+            "radius": None
+        },
     }), 200
 
 
 @training_bp.route('', methods=['POST'])
-@pp_decorator(request, required_fields=['sensor_data', 'word', 'user_id'])
+@pp_decorator(request,
+              required_fields=['sensor_data', 'word', 'user_id', 'chars'])
+# @jwt_required()
 def train():
     try:
         sensor_data = request.json['sensor_data']
 
-        
-
-        task = train_models.delay(sensor_data)
+        task = train_models.delay(sensor_data, {
+            'user_id': request.json['user_id'],
+            'word': request.json['word'],
+            'characteristics': request.json['chars']
+        })
 
         return jsonify({
             'task': task.id
         }), 200
-    
+
     except Exception as e:
-        return jsonify({'error' : str(e)}),500
+        return jsonify({'error': str(e)}), 500
 
 
 @training_bp.route('/<string:task_id>')
@@ -81,10 +105,26 @@ def train():
 def train_check(task_id):
     result = AsyncResult(task_id)
 
-    # TODO Save in DB
+    if result.ready() and result.successful():
+        model_info, db_info, sensor_data = result.result
+
+        db_info['model'] = model_info
+
+        _, row = database.create_table_row('words', db_info)
+
+        database.create_table_row('data_words', {
+            'id_word': row.id,
+            'data': sensor_data
+        })
+
+        return jsonify({
+            "ready": result.ready(),
+            "success": result.successful(),
+            "word": row.serialize()
+        }), 200
 
     return jsonify({
         "ready": result.ready(),
         "success": result.successful(),
-        "bad_samples": result.result if result.ready() else None,
+        "word": None,
     }), 200

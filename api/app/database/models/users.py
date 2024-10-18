@@ -19,9 +19,13 @@ class User(Base):
     password = Column(String(64), nullable=False)
     creationDate = Column(TIMESTAMP(), nullable=False, default=dt.now())
 
-    # Relacion con el modelo "words"
     words = relationship(
         "Word",
+        back_populates="users",
+        cascade="all, delete-orphan",
+    )
+    models = relationship(
+        "Model",
         back_populates="users",
         cascade="all, delete-orphan",
     )
