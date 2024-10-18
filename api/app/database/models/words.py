@@ -1,5 +1,5 @@
 
-from sqlalchemy import Column, Integer, String, JSON, ForeignKey, LargeBinary
+from sqlalchemy import Column, Integer, String, JSON, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -14,7 +14,7 @@ class Word(Base):
     id = Column(Integer(), primary_key=True, autoincrement=True)
     word = Column(String(50), nullable=False)
     characteristics = Column(JSON, nullable=False)
-    model = Column(LargeBinary, nullable=False)
+    model = Column(JSON, nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
     users = relationship("User", back_populates="words")
