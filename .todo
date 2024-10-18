@@ -6,5 +6,5 @@ Backend:
     ✔ Como hacer un refresh del token. le mando una peticion  y me regresa un token actualizado. @started(24-09-06 23:42) @done(24-09-07 00:19) @lasted(37m43s)
     ✔ Ruta me, me tiene que devolver mi usuario, solo le mando el token, va encriptado el ID de usuario @started(24-09-08 16:23) @done(24-09-08 16:44) @lasted(21m23s)
 
-
+    ☐ Hacer Modelo grande y su actualización
 
