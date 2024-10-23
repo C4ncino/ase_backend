@@ -1,4 +1,5 @@
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import f1_score, roc_auc_score
 
 
 def calculate_metrics(y_true, y_pred, y_pred_prob):
@@ -12,7 +13,7 @@ def calculate_metrics(y_true, y_pred, y_pred_prob):
     return metrics
 
 
-def compare_metrics(current_metrics, best_metrics):
+def has_better_metrics(current_metrics, best_metrics):
     metrics = ['roc_auc', 'f1_score', 'precision', 'recall', 'accuracy']
 
     for metric in metrics:

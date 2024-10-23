@@ -12,10 +12,11 @@ class Word(Base):
     __tablename__ = "words"
 
     id = Column(Integer(), primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    class_key = Column(Integer, nullable=False)
     word = Column(String(50), nullable=False)
     characteristics = Column(JSON, nullable=False)
     model = Column(JSON, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
     users = relationship("User", back_populates="words")
     data_words = relationship(

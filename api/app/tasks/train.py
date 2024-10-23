@@ -1,8 +1,9 @@
 from celery import shared_task
 
+from app.database import database
 from app.models import inspect_movement, get_centroid
 from app.models import prepare_data, MODEL_POOL
-from app.models import calculate_metrics, compare_metrics
+from app.models import calculate_metrics, has_better_metrics
 from app.models import convert_model_to_tfjs
 
 
@@ -19,7 +20,7 @@ def remove_by_dtw(sensor_data: list[dict]) -> list[int]:
 
 
 @shared_task(ignore_result=True)
-def train_models(sensor_data: list[dict], db_info: dict) -> dict:
+def train_models(sensor_data: list[dict], db_info: dict) -> tuple[dict, dict, list[dict]]:
     best_model = None
     best_metrics = None
 
@@ -47,10 +48,21 @@ def train_models(sensor_data: list[dict], db_info: dict) -> dict:
             best_metrics = metrics
             continue
 
-        if compare_metrics(metrics, best_metrics):
+        if has_better_metrics(metrics, best_metrics):
             best_model = model
             best_metrics = metrics
 
     model_info = convert_model_to_tfjs(best_model)
 
-    return model_info, db_info, sensor_data
+    user_words = database.read_by_field('words', 'user_id', user_id)
+
+    db_info['model'] = model_info
+
+    db_info['class_key'] = len(user_words)
+
+    return db_info, sensor_data
+
+
+@shared_task(ignore_result=True)
+def train_large_model(user_id: int) -> dict:
+    pass

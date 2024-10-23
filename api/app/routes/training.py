@@ -106,9 +106,7 @@ def train_check(task_id):
     result = AsyncResult(task_id)
 
     if result.ready() and result.successful():
-        model_info, db_info, sensor_data = result.result
-
-        db_info['model'] = model_info
+        db_info, sensor_data = result.result
 
         _, row = database.create_table_row('words', db_info)
 

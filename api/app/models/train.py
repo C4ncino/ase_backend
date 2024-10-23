@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from app.database import database
 
 
-def prepare_data(sensor_data: list[dict], user_id: int):
+def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     n_samples = len(sensor_data)
 
     current_data = np.array([pd.DataFrame(i).values for i in sensor_data])
@@ -27,5 +27,29 @@ def prepare_data(sensor_data: list[dict], user_id: int):
     labels = np.concatenate((current_labels, np.zeros(len(other_words_data))))
 
     x_train, x_val, y_train, y_val = train_test_split(data, labels, test_size=0.2)
+
+    return x_train, x_val, y_train, y_val
+
+
+def prepare_data_for_large_model(user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    user_words = database.read_by_field('words', 'user_id', user_id)
+
+    training_data_arr = []
+    labels_arr = []
+
+    for word in user_words:
+        word_data = database.read_by_id('data_words', word.id)
+
+        json = word_data.data
+
+        for sample in json:
+            training_data_arr.append(pd.DataFrame(sample).values)
+
+        labels_arr.append([word.class_key] * len(json))
+
+    training_data = np.array(training_data_arr)
+    labels = np.array(labels_arr)
+
+    x_train, x_val, y_train, y_val = train_test_split(training_data, labels, test_size=0.2)
 
     return x_train, x_val, y_train, y_val
