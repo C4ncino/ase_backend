@@ -7,4 +7,7 @@ Backend:
     ✔ Ruta me, me tiene que devolver mi usuario, solo le mando el token, va encriptado el ID de usuario @started(24-09-08 16:23) @done(24-09-08 16:44) @lasted(21m23s)
 
     ☐ Hacer Modelo grande y su actualización
-
+    ☐ Agregar toma de muestras de otros condicional dependiendo el numero de palabras del usuario
+    ☐ En menos de 5 palabras entrenar todos los modelos
+        ☐ Factorizar la task de entrenamiento
+    ☐ Secuencia para generar datos para probar los modelos por aparte (dump de las tablas)
