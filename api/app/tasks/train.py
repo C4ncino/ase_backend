@@ -2,7 +2,8 @@ from celery import shared_task
 
 from app.database import database
 from app.models import inspect_movement, get_centroid
-from app.models import prepare_data, MODEL_POOL
+from app.models import prepare_data, SMALL_MODEL_POOL
+from app.models import prepare_data_for_large_model, LARGE_MODEL_POOL, get_large_model
 from app.models import calculate_metrics, has_better_metrics
 from app.models import convert_model_to_tfjs
 
@@ -28,7 +29,7 @@ def train_models(sensor_data: list[dict], db_info: dict) -> tuple[dict, dict, li
 
     x_train, x_val, y_train, y_val = prepare_data(sensor_data, user_id)
 
-    for _, model in MODEL_POOL.items():
+    for _, model in SMALL_MODEL_POOL.items():
         model.fit(
             x_train,
             y_train,
@@ -65,4 +66,31 @@ def train_models(sensor_data: list[dict], db_info: dict) -> tuple[dict, dict, li
 
 @shared_task(ignore_result=True)
 def train_large_model(user_id: int) -> dict:
-    pass
+
+    x_train, x_val, y_train, y_val = prepare_data_for_large_model(user_id)
+    
+    model = get_large_model('L1', n_classes=len(set(y_train)))
+
+    #Entrena
+    model.fit(
+        x_train,
+        y_train,
+        epochs=50,  
+        batch_size=16,  
+        validation_data=(x_val, y_val),
+    )
+    
+    # Convertir el modelo a formato TensorFlow.js
+    model_info = convert_model_to_tfjs(model)
+
+    # Verificar si ya existe un modelo para el usuario y actualizar o crear
+    existing_model = database.read_by_id('models', user_id)
+    
+    if existing_model:
+        database.update_table_row('models', user_id, {'model_info': model_info})
+    else:
+        database.create_table_row('models', {'user_id': user_id, 'model_info': model_info})
+
+    # Devolver la información del modelo actualizada
+    return {'user_id': user_id, 'model': model_info}
+

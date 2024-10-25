@@ -11,4 +11,4 @@ Backend:
     ☐ En menos de 5 palabras entrenar todos los modelos
         ☐ Factorizar la task de entrenamiento
 
-    ☐ Secuencia para generar datos para probar los modelos por aparte (dump de las tablas) `NABILA`
+    ✔ Secuencia para generar datos para probar los modelos por aparte (dump de las tablas) `NABILA` @done(24-10-24 18:29)
