@@ -1,4 +1,4 @@
-from celery import shared_task
+from celery import shared_task, states
 
 from app.database import database
 from app.models import inspect_movement, get_centroid
@@ -59,6 +59,11 @@ def train_models(self, sensor_data: list[dict], db_info: dict) -> tuple[dict, di
             best_metrics = metrics
             continue
 
+        if metrics['roc_auc'] > 0.85:
+            best_model = model
+            best_metrics = metrics
+            break
+
         if has_better_metrics(metrics, best_metrics):
             best_model = model
             best_metrics = metrics
@@ -79,7 +84,10 @@ def train_models(self, sensor_data: list[dict], db_info: dict) -> tuple[dict, di
 
     db_info['class_key'] = len(user_words)
 
-    return db_info, sensor_data
+    self.update_state(
+        state=states.SUCCESS,
+        meta=(db_info, sensor_data)
+    )
 
 
 @shared_task(ignore_result=True)

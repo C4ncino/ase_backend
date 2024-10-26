@@ -50,7 +50,7 @@ def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.
         data = np.concatenate((current_data, generate_random()))
         labels = np.concatenate((current_labels, np.zeros(20)))
 
-    x_train, x_val, y_train, y_val = train_test_split(data, labels, test_size=0.2)
+    x_train, x_val, y_train, y_val = train_test_split(data, labels, test_size=0.2, stratify=labels)
 
     return x_train, x_val, y_train, y_val
 
@@ -74,6 +74,6 @@ def prepare_data_for_large_model(user_id: int) -> tuple[np.ndarray, np.ndarray, 
     training_data = np.array(training_data_arr)
     labels = np.array(labels_arr)
 
-    x_train, x_val, y_train, y_val = train_test_split(training_data, labels, test_size=0.2)
+    x_train, x_val, y_train, y_val = train_test_split(training_data, labels, test_size=0.2, stratify=labels)
 
     return x_train, x_val, y_train, y_val

@@ -106,6 +106,8 @@ def train_check(task_id):
     result = AsyncResult(task_id)
 
     if result.state == 'PROGRESS':
+        print("nada")
+
         return jsonify({
             "ready": result.ready(),
             "success": result.successful(),

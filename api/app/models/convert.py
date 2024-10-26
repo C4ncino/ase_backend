@@ -12,7 +12,7 @@ def convert_model_to_tfjs(model):
     with tempfile.TemporaryDirectory() as tmp_dir:
         output_dir = os.path.join(tmp_dir, 'tfjs_model')
 
-        tfjs.converters.convert_keras_model(model, output_dir)
+        tfjs.converters.save_keras_model(model, output_dir)
 
         json_file_path = os.path.join(output_dir, 'model.json')
 
