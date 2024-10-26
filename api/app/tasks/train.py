@@ -5,6 +5,7 @@ from app.models import inspect_movement, get_centroid
 from app.models import prepare_data, SMALL_MODEL_POOL
 from app.models import prepare_data_for_large_model, LARGE_MODEL_POOL, get_large_model
 from app.models import calculate_metrics, has_better_metrics
+from datetime import datetime as dt
 from app.models import convert_model_to_tfjs
 
 
@@ -87,10 +88,17 @@ def train_large_model(user_id: int) -> dict:
     existing_model = database.read_by_id('models', user_id)
     
     if existing_model:
-        database.update_table_row('models', user_id, {'model_info': model_info})
+        database.update_table_row(
+            'models',
+            user_id, 
+            {'model_info': model_info, 'last_update': dt.now()}
+        )
     else:
-        database.create_table_row('models', {'user_id': user_id, 'model_info': model_info})
+        database.create_table_row(
+            'models',
+            {'user_id': user_id, 'model_info': model_info}
+        )
 
     # Devolver la información del modelo actualizada
-    return {'user_id': user_id, 'model': model_info}
+    return model_info
 
