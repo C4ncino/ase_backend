@@ -99,11 +99,15 @@ class DatabaseInterface(metaclass=SingletonMeta):
         table_class = self.__TABLE_CLASS_MAP.get(table_name.lower())
 
         if table_class:
-            row = table_class(**row_info)
-            self.__session.add(row)
-            self.__session.commit()
+            try:
+                row = table_class(**row_info)
+                self.__session.add(row)
+                self.__session.commit()
 
-            return True, row
+                return True, row
+
+            except sqlalchemy.exc.SQLAlchemyError:
+                self.__session.rollback()
 
         return False, None
 
@@ -259,14 +263,18 @@ class DatabaseInterface(metaclass=SingletonMeta):
         table_class = self.__TABLE_CLASS_MAP.get(table_name.lower())
 
         if table_class:
-            data = self.__session.query(table_class)
-            data = data.filter(table_class.id == element_id).first()
+            try:
+                data = self.__session.query(table_class)
+                data = data.filter(table_class.id == element_id).first()
 
-            for key, value in row_info.items():
-                setattr(data, key, value)
-            self.__session.commit()
+                for key, value in row_info.items():
+                    setattr(data, key, value)
+                self.__session.commit()
 
-            return data
+                return data
+
+            except sqlalchemy.exc.SQLAlchemyError:
+                self.__session.rollback()
 
         return None
 
@@ -293,6 +301,7 @@ class DatabaseInterface(metaclass=SingletonMeta):
                 self.__session.commit()
 
             except sqlalchemy.exc.SQLAlchemyError:
+                self.__session.rollback()
                 return False
 
             return True
