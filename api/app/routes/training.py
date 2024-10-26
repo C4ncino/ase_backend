@@ -1,3 +1,4 @@
+from datetime import datetime as dt
 from celery.result import AsyncResult
 # from flask_jwt_extended import jwt_required
 from flask import Blueprint, jsonify, request
@@ -52,29 +53,25 @@ def validate_training():
 def validate_check(task_id):
     result = AsyncResult(task_id)
 
+    response = {
+        "bad_samples": None,
+        "threshold": None,
+        "centroid": None,
+        "radius": None
+    }
+
     if result.ready() and result.successful():
         bad_samples, threshold, centroid, radius = result.result
 
-        return jsonify({
-            "ready": result.ready(),
-            "success": result.successful(),
-            "result": {
-                "bad_samples": bad_samples,
-                "threshold": threshold,
-                "centroid": centroid,
-                "radius": radius
-            },
-        }), 200
+        response['bad_samples'] = bad_samples
+        response['threshold'] = threshold
+        response['centroid'] = centroid
+        response['radius'] = radius
 
     return jsonify({
         "ready": result.ready(),
         "success": result.successful(),
-        "result": {
-            "bad_samples": None,
-            "threshold": None,
-            "centroid": None,
-            "radius": None
-        },
+        "result": response,
     }), 200
 
 
@@ -124,19 +121,21 @@ def train_check(task_id):
         })
 
         user_id = db_info['user_id']
+
         train_task = train_large_model.delay(user_id)
 
         return jsonify({
             "ready": result.ready(),
             "success": result.successful(),
             "word": row.serialize(),
-            'train_large_task': train_task.id,
+            "train_large_task": train_task.id,
         }), 200
 
     return jsonify({
         "ready": result.ready(),
         "success": result.successful(),
         "word": None,
+        "train_large_task": None,
     }), 200
 
 
@@ -144,6 +143,23 @@ def train_check(task_id):
 # @jwt_required()
 def validate_train_large(task_id):
     result = AsyncResult(task_id)
+
+    if result.ready() and result.successful():
+        model_info, user_id = result.result
+
+        existing_model = database.read_by_id('models', user_id)
+
+        if existing_model:
+            database.update_table_row(
+                'models',
+                user_id,
+                {'model_info': model_info, 'last_update': dt.now()}
+            )
+        else:
+            database.create_table_row(
+                'models',
+                {'user_id': user_id, 'model_info': model_info}
+            )
 
     return jsonify({
         "ready": result.ready(),

@@ -2,10 +2,10 @@ from celery import shared_task, states
 
 from app.database import database
 from app.models import inspect_movement, get_centroid
-from app.models import prepare_data, SMALL_MODEL_POOL, get_model
-from app.models import prepare_data_for_large_model, LARGE_MODEL_POOL, get_large_model
+from app.models import SMALL_MODEL_POOL, LARGE_MODEL_POOL
+from app.models import prepare_data, prepare_data_for_large_model
+from app.models import get_model, get_large_model
 from app.models import calculate_metrics, has_better_metrics
-from datetime import datetime as dt
 from app.models import convert_model_to_tfjs
 
 
@@ -109,18 +109,4 @@ def train_large_model(user_id: int) -> dict:
 
     model_info = convert_model_to_tfjs(model)
 
-    existing_model = database.read_by_id('models', user_id)
-
-    if existing_model:
-        database.update_table_row(
-            'models',
-            user_id,
-            {'model_info': model_info, 'last_update': dt.now()}
-        )
-    else:
-        database.create_table_row(
-            'models',
-            {'user_id': user_id, 'model_info': model_info}
-        )
-
-    return model_info
+    return model_info, user_id
