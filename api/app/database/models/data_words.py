@@ -1,9 +1,10 @@
-from sqlalchemy import Column, Integer, ForeignKey, JSON
 from sqlalchemy.orm import relationship
-from .base import Base
+from sqlalchemy import Column, Integer, ForeignKey, JSON
+
+from .base import Base, AbstractModel
 
 
-class Data(Base):
+class Data(Base, AbstractModel):
     __tablename__ = "data_words"
 
     id_word = Column(Integer, ForeignKey("words.id"),

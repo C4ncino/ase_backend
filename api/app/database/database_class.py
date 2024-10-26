@@ -6,7 +6,7 @@ import sqlalchemy.exc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, registry
 
-from .models.base import Base
+from .models.base import Base, AbstractModel
 from .models.users import User
 from .models.words import Word
 from .models.data_words import Data
@@ -84,7 +84,7 @@ class DatabaseInterface(metaclass=SingletonMeta):
 
         Base.metadata.create_all(self.__engine)
 
-    def create_table_row(self, table_name: str, row_info: dict):
+    def create_table_row(self, table_name: str, row_info: dict) -> tuple[bool, AbstractModel]:
         """
         Create a new row in the table
 
@@ -107,7 +107,7 @@ class DatabaseInterface(metaclass=SingletonMeta):
 
         return False, None
 
-    def read_all_table(self, table_name: str):
+    def read_all_table(self, table_name: str) -> list[AbstractModel]:
         """
         Read all rows in the table
         """
@@ -121,7 +121,7 @@ class DatabaseInterface(metaclass=SingletonMeta):
 
         return []
 
-    def read_by_id(self, table_name: str, element_id: int | str):
+    def read_by_id(self, table_name: str, element_id: int | str) -> AbstractModel | None:
         """
         Read a row by id
 
@@ -184,7 +184,7 @@ class DatabaseInterface(metaclass=SingletonMeta):
 
     def read_by_field(
         self, table_name: str, field: str, value: str, comparison='eq'
-    ):
+    ) -> list[AbstractModel]:
         """
         Read all rows by a selected field
 
@@ -209,7 +209,7 @@ class DatabaseInterface(metaclass=SingletonMeta):
 
         return []
 
-    def read_by_fields(self, table_name: str, queries: list[Query]):
+    def read_by_fields(self, table_name: str, queries: list[Query]) -> list[AbstractModel]:
         """
         Read all rows by a selected fields
 
@@ -243,7 +243,7 @@ class DatabaseInterface(metaclass=SingletonMeta):
 
     def update_table_row(
         self, table_name: str, element_id: int | str, row_info: dict
-    ):
+    ) -> AbstractModel | None:
         """
         Update a row by id
 
@@ -270,7 +270,7 @@ class DatabaseInterface(metaclass=SingletonMeta):
 
         return None
 
-    def delete_table_row(self, table_name: str, id_element: int | str):
+    def delete_table_row(self, table_name: str, id_element: int | str) -> bool:
         """
         Delete a row by id
 

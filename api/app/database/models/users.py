@@ -1,10 +1,11 @@
 from datetime import datetime as dt
-from .base import Base
-from sqlalchemy import Column, Integer, String, Date, TIMESTAMP
 from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Date, TIMESTAMP
+
+from .base import Base, AbstractModel
 
 
-class User(Base):
+class User(Base, AbstractModel):
     """
     Example Model
     """

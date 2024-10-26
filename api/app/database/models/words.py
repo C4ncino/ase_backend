@@ -1,10 +1,10 @@
-
-from sqlalchemy import Column, Integer, String, JSON, ForeignKey
 from sqlalchemy.orm import relationship
-from .base import Base
+from sqlalchemy import Column, Integer, String, JSON, ForeignKey
+
+from .base import Base, AbstractModel
 
 
-class Word(Base):
+class Word(Base, AbstractModel):
     """
     Word Model: Almacena palabras y datos de sensores asociados.
     """
