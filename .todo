@@ -12,3 +12,5 @@ Backend:
         ☐ Factorizar la task de entrenamiento
 
     ✔ Secuencia para generar datos para probar los modelos por aparte (dump de las tablas) `NABILA` @done(24-10-24 18:29)
+
+    ☐ Validacion de palabra ya existente
