@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 
 from app.database import database
 from app.utils import pp_decorator
-from app.tasks import remove_by_dtw, train_models
+from app.tasks import remove_by_dtw, train_models, train_large_model
 from app.models import inspect_fingers
 
 
@@ -106,8 +106,6 @@ def train_check(task_id):
     result = AsyncResult(task_id)
 
     if result.state == 'PROGRESS':
-        print("nada")
-
         return jsonify({
             "ready": result.ready(),
             "success": result.successful(),
@@ -125,14 +123,30 @@ def train_check(task_id):
             'data': sensor_data
         })
 
+        user_id = db_info['user_id']
+        train_task = train_large_model.delay(user_id)
+
         return jsonify({
             "ready": result.ready(),
             "success": result.successful(),
-            "word": row.serialize()
+            "word": row.serialize(),
+            'train_large_task': train_task.id,
         }), 200
 
     return jsonify({
         "ready": result.ready(),
         "success": result.successful(),
         "word": None,
+    }), 200
+
+
+@training_bp.route('/large_model/<string:task_id>')
+# @jwt_required()
+def validate_train_large(task_id):
+    result = AsyncResult(task_id)
+
+    return jsonify({
+        "ready": result.ready(),
+        "success": result.successful(),
+        "result": result.result if result.successful() else None
     }), 200

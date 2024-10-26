@@ -1,5 +1,5 @@
 from .validate import inspect_movement, inspect_fingers, get_centroid
-from .train import prepare_data
+from .train import prepare_data, prepare_data_for_large_model
 from .small_models import get_model
 from .large_models import get_large_model
 from .metrics import calculate_metrics, has_better_metrics
@@ -32,6 +32,7 @@ __all__ = [
     'get_large_model',
     'calculate_metrics',
     'prepare_data',
+    'prepare_data_for_large_model',
     'has_better_metrics',
     'convert_model_to_tfjs',
 ]

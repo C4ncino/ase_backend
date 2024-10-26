@@ -3,7 +3,9 @@ from celery import shared_task, states
 from app.database import database
 from app.models import inspect_movement, get_centroid
 from app.models import prepare_data, SMALL_MODEL_POOL, get_model
+from app.models import prepare_data_for_large_model, LARGE_MODEL_POOL, get_large_model
 from app.models import calculate_metrics, has_better_metrics
+from datetime import datetime as dt
 from app.models import convert_model_to_tfjs
 
 
@@ -92,4 +94,33 @@ def train_models(self, sensor_data: list[dict], db_info: dict) -> tuple[dict, di
 
 @shared_task(ignore_result=True)
 def train_large_model(user_id: int) -> dict:
-    pass
+
+    x_train, x_val, y_train, y_val = prepare_data_for_large_model(user_id)
+
+    model = get_large_model('L1', n_classes=len(set(y_train)))
+
+    model.fit(
+        x_train,
+        y_train,
+        epochs=50,
+        batch_size=16,
+        validation_data=(x_val, y_val),
+    )
+
+    model_info = convert_model_to_tfjs(model)
+
+    existing_model = database.read_by_id('models', user_id)
+
+    if existing_model:
+        database.update_table_row(
+            'models',
+            user_id,
+            {'model_info': model_info, 'last_update': dt.now()}
+        )
+    else:
+        database.create_table_row(
+            'models',
+            {'user_id': user_id, 'model_info': model_info}
+        )
+
+    return model_info
