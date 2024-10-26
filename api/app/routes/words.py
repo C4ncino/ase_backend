@@ -98,28 +98,31 @@ def update_word(word_id):
             {'error': f'Error al procesar la solicitud: {str(e)}'}
         ), 500
 
+
 @words_bp.route('/dump/<int:user_id>', methods=['GET'])
 # @jwt_required()
 def data_dump(user_id):
     try:
         words = database.read_by_field('words', 'user_id', user_id)
-        if not words:
-            return jsonify({'error': 'No se encontraron palabras para el usuario'}), 404
+
+        if len(words) == 0:
+            return jsonify(
+                {'error': 'No se encontraron palabras para el usuario'}
+            ), 404
+
         word_data_dump = []
 
         for word in words:
 
-            word_data = database.read_by_field('word_data', 'id', word.id)
+            word_data = database.read_by_id('data_words', word.id)
 
-            # Estructura los datos de la palabra y su información asociada
-            word_info = {
-                'word': word.word, 
-                'data': [data.serialize() for data in word_data]  # Los datos asociados
-            }
+            word_info = word_data.serialize()
 
             word_data_dump.append(word_info)
 
         return jsonify({'dump': word_data_dump}), 200
 
     except Exception as e:
-        return jsonify({'error': f'Error al procesar la solicitud: {str(e)}'}), 500
+        return jsonify(
+            {'error': f'Error al procesar la solicitud: {str(e)}'}
+        ), 500
