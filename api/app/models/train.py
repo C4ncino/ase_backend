@@ -55,7 +55,7 @@ def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.
     return x_train, x_val, y_train, y_val
 
 
-def prepare_data_for_large_model(user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def prepare_data_for_lm(user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     user_words = database.read_by_field('words', 'user_id', user_id)
 
     training_data_arr = []
@@ -68,12 +68,11 @@ def prepare_data_for_large_model(user_id: int) -> tuple[np.ndarray, np.ndarray, 
 
         for sample in json:
             training_data_arr.append(pd.DataFrame(sample).values)
+            labels_arr.append(word.class_key)
 
-        labels_arr.append([word.class_key] * len(json))
+    data = np.concatenate((np.array(training_data_arr), generate_random()))
+    labels = np.concatenate((np.array(labels_arr), np.zeros(20)))
 
-    training_data = np.array(training_data_arr)
-    labels = np.array(labels_arr)
+    x_train, x_val, y_train, y_val = train_test_split(data, labels, test_size=0.2, stratify=labels)
 
-    x_train, x_val, y_train, y_val = train_test_split(training_data, labels, test_size=0.2, stratify=labels)
-
-    return x_train, x_val, y_train, y_val
+    return x_train, x_val, y_train, y_val, len(user_words)

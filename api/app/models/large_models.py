@@ -29,7 +29,7 @@ def get_large_model(type: str, n_classes: int) -> Model:
 
         model.compile(
             optimizer='adam',
-            loss='binary_crossentropy',
+            loss='sparse_categorical_crossentropy',
             metrics=['accuracy']
         )
 

@@ -116,7 +116,7 @@ def train_check(task_id):
         _, row = database.create_table_row('words', db_info)
 
         database.create_table_row('data_words', {
-            'id_word': row.id,
+            'id': row.id,
             'data': sensor_data
         })
 
@@ -144,6 +144,8 @@ def train_check(task_id):
 def validate_train_large(task_id):
     result = AsyncResult(task_id)
 
+    response_model = None
+
     if result.ready() and result.successful():
         model_info, user_id = result.result
 
@@ -161,8 +163,10 @@ def validate_train_large(task_id):
                 {'user_id': user_id, 'model_info': model_info}
             )
 
+        response_model = model_info
+
     return jsonify({
         "ready": result.ready(),
         "success": result.successful(),
-        "result": result.result if result.successful() else None
+        "result": response_model,
     }), 200

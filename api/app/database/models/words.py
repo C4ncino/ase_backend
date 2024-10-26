@@ -35,4 +35,5 @@ class Word(AbstractModel):
         return {
             "id": self.id,
             "word": self.word,
+            "class_key": self.class_key,
         }
