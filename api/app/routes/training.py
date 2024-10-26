@@ -105,6 +105,14 @@ def train():
 def train_check(task_id):
     result = AsyncResult(task_id)
 
+    if result.state == 'PROGRESS':
+        return jsonify({
+            "ready": result.ready(),
+            "success": result.successful(),
+            "word": None,
+            "info": result.info
+        }), 200
+
     if result.ready() and result.successful():
         db_info, sensor_data = result.result
 

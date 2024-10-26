@@ -2,7 +2,7 @@ from celery import shared_task
 
 from app.database import database
 from app.models import inspect_movement, get_centroid
-from app.models import prepare_data, MODEL_POOL
+from app.models import prepare_data, SMALL_MODEL_POOL, get_model
 from app.models import calculate_metrics, has_better_metrics
 from app.models import convert_model_to_tfjs
 
@@ -16,11 +16,11 @@ def remove_by_dtw(sensor_data: list[dict]) -> list[int]:
 
     _, centroid, radius = get_centroid(sensor_data)
 
-    return bad_samples, threshold, centroid, radius
+    return bad_samples, threshold, centroid.tolist(), radius
 
 
-@shared_task(ignore_result=True)
-def train_models(sensor_data: list[dict], db_info: dict) -> tuple[dict, dict, list[dict]]:
+@shared_task(ignore_result=True, bind=True)
+def train_models(self, sensor_data: list[dict], db_info: dict) -> tuple[dict, dict, list[dict]]:
     best_model = None
     best_metrics = None
 
@@ -28,7 +28,18 @@ def train_models(sensor_data: list[dict], db_info: dict) -> tuple[dict, dict, li
 
     x_train, x_val, y_train, y_val = prepare_data(sensor_data, user_id)
 
-    for _, model in MODEL_POOL.items():
+    self.update_state(
+        state='PROGRESS',
+        meta={
+            'current': "getting first",
+            'best': y_val.tolist()
+        }
+    )
+
+    for model_version in SMALL_MODEL_POOL:
+
+        model = get_model(model_version)
+
         model.fit(
             x_train,
             y_train,
@@ -41,7 +52,7 @@ def train_models(sensor_data: list[dict], db_info: dict) -> tuple[dict, dict, li
         y_pred_prob = model.predict(x_val)
         y_pred = (y_pred_prob > 0.5).astype(int)
 
-        metrics = calculate_metrics(y_val, y_pred)
+        metrics = calculate_metrics(y_val, y_pred, y_pred_prob)
 
         if best_metrics is None:
             best_model = model
@@ -51,6 +62,14 @@ def train_models(sensor_data: list[dict], db_info: dict) -> tuple[dict, dict, li
         if has_better_metrics(metrics, best_metrics):
             best_model = model
             best_metrics = metrics
+
+        self.update_state(
+            state='PROGRESS',
+            meta={
+                'current': metrics,
+                'best': best_metrics
+            }
+        )
 
     model_info = convert_model_to_tfjs(best_model)
 

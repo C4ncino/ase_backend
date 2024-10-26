@@ -4,6 +4,21 @@ from sklearn.model_selection import train_test_split
 from app.database import database
 
 
+def generate_random(quantity=20) -> np.ndarray:
+    samples = []
+
+    for _ in range(quantity):
+        first_five = np.random.randint(0, 6, size=(60, 5))
+
+        last_three = np.random.randint(-999, 1000, size=(60, 3))
+
+        samples.append(np.concatenate((first_five, last_three), axis=1))
+
+    samples_array = np.array(samples)
+
+    return samples_array
+
+
 def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     n_samples = len(sensor_data)
 
@@ -22,9 +37,18 @@ def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.
         for i in range(5):
             other_words_data.append(pd.DataFrame(json[i]).values)
 
-    data = np.concatenate((current_data, np.array(other_words_data)))
+    if len(other_words_data) > 0:
+        data = np.concatenate(
+            (current_data, np.array(other_words_data), generate_random())
+        )
 
-    labels = np.concatenate((current_labels, np.zeros(len(other_words_data))))
+        labels = np.concatenate(
+            (current_labels, np.zeros(len(other_words_data)), np.zeros(20))
+        )
+
+    else:
+        data = np.concatenate((current_data, generate_random()))
+        labels = np.concatenate((current_labels, np.zeros(20)))
 
     x_train, x_val, y_train, y_val = train_test_split(data, labels, test_size=0.2)
 
