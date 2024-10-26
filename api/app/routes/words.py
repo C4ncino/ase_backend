@@ -126,3 +126,35 @@ def data_dump(user_id):
         return jsonify(
             {'error': f'Error al procesar la solicitud: {str(e)}'}
         ), 500
+
+
+@words_bp.route('/exists/<int:user_id>/<string:word>', methods=['GET'])
+# @jwt_required()
+def check_word_exists(user_id, word):
+    try:
+        existing_words = database.read_by_fields('words', {'user_id': user_id, 'word': word.lower()})
+
+        if existing_words:
+            return jsonify({'exists': True, 'message': 'La palabra ya existe para este usuario'}), 200
+        else:
+            return jsonify({'exists': False, 'message': 'La palabra no existe para este usuario'}), 200
+
+    except Exception as e:
+        return jsonify({'error': f'Error al procesar la solicitud: {str(e)}'}), 500
+    
+
+@words_bp.route('/get/<int:word_id>', methods=['GET'])
+# @jwt_required()
+def get_word_by_id(word_id):
+    try:
+        word = database.read_by_id('words', word_id)
+
+        if not word:
+            return jsonify({'error': 'Palabra no encontrada'}), 404
+
+        return jsonify({
+            'word': word.word,
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': f'Error al procesar la solicitud: {str(e)}'}), 500
