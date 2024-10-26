@@ -2,10 +2,10 @@ from datetime import datetime as dt
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, JSON, ForeignKey, TIMESTAMP
 
-from .base import Base, AbstractModel
+from .base import AbstractModel
 
 
-class Model(Base, AbstractModel):
+class Model(AbstractModel):
     """
     Word Model: Almacena palabras y datos de sensores asociados.
     """
