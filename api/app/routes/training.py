@@ -144,29 +144,25 @@ def train_check(task_id):
 def validate_train_large(task_id):
     result = AsyncResult(task_id)
 
-    response_model = None
-
     if result.ready() and result.successful():
         model_info, user_id = result.result
 
         existing_model = database.read_by_id('models', user_id)
 
         if existing_model:
-            database.update_table_row(
+            row = database.update_table_row(
                 'models',
                 user_id,
-                {'model_info': model_info, 'last_update': dt.now()}
+                {'model': model_info, 'last_update': dt.now()}
             )
         else:
-            database.create_table_row(
+            _, row = database.create_table_row(
                 'models',
-                {'user_id': user_id, 'model_info': model_info}
+                {'id': user_id, 'model': model_info}
             )
-
-        response_model = model_info
 
     return jsonify({
         "ready": result.ready(),
         "success": result.successful(),
-        "result": response_model,
+        "result": row.serialize(),
     }), 200
