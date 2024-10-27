@@ -2,7 +2,9 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from app.database import database
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+max_len= 60
 
 def generate_random(quantity=20) -> np.ndarray:
     samples = []
@@ -50,9 +52,13 @@ def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.
         data = np.concatenate((current_data, generate_random()))
         labels = np.concatenate((current_labels, np.zeros(20)))
 
+    data = pad_sequences(data, maxlen=max_len, padding='post', dtype='float32')
+
+
     x_train, x_val, y_train, y_val = train_test_split(data, labels, test_size=0.2, stratify=labels)
 
     return x_train, x_val, y_train, y_val
+
 
 
 def prepare_data_for_lm(user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -72,6 +78,8 @@ def prepare_data_for_lm(user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarra
 
     data = np.concatenate((np.array(training_data_arr), generate_random()))
     labels = np.concatenate((np.array(labels_arr), np.zeros(20)))
+
+    data = pad_sequences(data, maxlen=max_len, padding='post', dtype='float32')
 
     x_train, x_val, y_train, y_val = train_test_split(data, labels, test_size=0.2, stratify=labels)
 

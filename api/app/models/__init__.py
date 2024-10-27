@@ -1,5 +1,5 @@
 from .validate import inspect_movement, inspect_fingers, get_centroid
-from .train import prepare_data, prepare_data_for_lm
+from .get_data import prepare_data, prepare_data_for_lm
 from .small_models import get_model
 from .large_models import get_large_model
 from .metrics import calculate_metrics, has_better_metrics

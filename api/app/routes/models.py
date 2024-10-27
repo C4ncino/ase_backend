@@ -1,5 +1,6 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import base64
+import datetime as dt
 from app.database import database
 
 models_bp = Blueprint('models', __name__, url_prefix='/models')
@@ -32,3 +33,45 @@ def download_file(file_id):
         }), 200
     else:
         return jsonify({"error": "File not found"}), 404
+
+#CHECAR VERSION MODELO
+
+@models_bp.route('/check_version/<int:user_id>', methods=['POST'])
+def check_model_version(user_id):
+    try:
+        # Obtener la fecha de la solicitud
+        request_data = request.json
+        request_date_str = request_data.get('date')
+        
+        # Convertir la fecha de solicitud a un objeto datetime
+        request_date = dt.strptime(request_date_str, "%d-%m-%Y %H:%M:%S")
+
+        # Obtener el modelo más reciente para el usuario
+        latest_model = database.read_by_field('models', 'id', user_id)
+
+        if not latest_model:
+            return jsonify({'error': 'No se encontró ningún modelo para este usuario.'}), 404
+
+        # Obtener la fecha de la última actualización del modelo
+        latest_model_date = latest_model.last_update
+
+       # Comparar fechas
+        is_updated = latest_model_date <= request_date  # True si está actualizado, False si hay una versión más nueva
+
+        if is_updated:
+            return jsonify({
+                'updated': True,
+                'latest_version_date': latest_model_date.strftime('%Y-%m-%d %H:%M:%S')
+            }), 200
+        else:
+            return jsonify({
+                'updated': False,
+                'latest_model': {
+                    'id': latest_model.id,
+                    'model_name': latest_model.model_name,
+                    'latest_version_date': latest_model_date.strftime('%Y-%m-%d %H:%M:%S')
+                }
+            }), 200
+
+    except Exception as e:
+        return jsonify({'error': f'Error al procesar la solicitud: {str(e)}'}), 500
