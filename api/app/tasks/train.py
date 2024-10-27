@@ -84,7 +84,7 @@ def train_models(self, sensor_data: list[dict], db_info: dict) -> tuple[dict, di
 
     db_info['model'] = model_info
 
-    db_info['class_key'] = len(user_words) + 1
+    db_info['class_key'] = len(user_words)
 
     return db_info, sensor_data
 

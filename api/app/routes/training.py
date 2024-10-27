@@ -139,7 +139,7 @@ def train_check(task_id):
     }), 200
 
 
-@training_bp.route('/large_model/<string:task_id>')
+@training_bp.route('/large-model/<string:task_id>')
 # @jwt_required()
 def validate_train_large(task_id):
     result = AsyncResult(task_id)
