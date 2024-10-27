@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pandas as pd
 import json
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
@@ -16,17 +17,21 @@ labels = np.array([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 a = []
 
-with open(r'C:\VScode\ase_backend\test\data\algo.json') as f:
+with open(r'C:\VScode\ase_backend\test\prueba.json') as f:
     json_data = json.load(f)
 
     for i in json_data:
         a.append(pd.DataFrame(i).values)
-
-data = np.array(a)
-
-print(len(data))
-
+# Rellena las secuencias para que tengan una longitud uniforme
+data = pad_sequences(a, maxlen=timesteps, padding='post', dtype='float32')
 n_samples = len(data)
+print(data)
+input()
+# data = np.array(a)
+
+# print(len(data))
+
+# n_samples = len(data)
 
 # Dividir los datos en 80% entrenamiento y 20% validación usando Numpy
 train_size = int(0.8 * n_samples)

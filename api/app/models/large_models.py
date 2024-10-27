@@ -5,7 +5,7 @@ from tensorflow.keras.models import Model
 
 def get_large_LSTM_v1() -> Model:
     return Sequential([
-        layers.Input(shape=(55, 8)),
+        layers.Input(shape=(60, 8)),
         layers.LSTM(256, return_sequences=True),
         layers.Dropout(0.2),
         layers.LSTM(128, return_sequences=True),
