@@ -143,6 +143,7 @@ def train_check(task_id):
 # @jwt_required()
 def validate_train_large(task_id):
     result = AsyncResult(task_id)
+    row = None
 
     if result.ready() and result.successful():
         model_info, user_id = result.result
@@ -164,5 +165,5 @@ def validate_train_large(task_id):
     return jsonify({
         "ready": result.ready(),
         "success": result.successful(),
-        "result": row.serialize(),
+        "result": row.serialize() if row else None,
     }), 200

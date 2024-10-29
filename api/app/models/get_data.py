@@ -16,11 +16,13 @@ def generate_random(quantity=20) -> np.ndarray:
 
         first_five = np.random.randint(0, 6, size=(random_size, 5))
 
-        last_three = np.round(np.random.uniform(-9.99, 10.0, size=(random_size, 3)), 2)
+        last_three = np.random.uniform(-9.99, 10.0, size=(random_size, 3))
+
+        last_three = np.round(last_three, 2)
 
         samples.append(np.concatenate((first_five, last_three), axis=1))
 
-    samples_array = np.array(samples, dtype=object)git
+    samples_array = np.array(samples, dtype=object)
 
     return samples_array
 
