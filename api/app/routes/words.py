@@ -10,6 +10,22 @@ words_bp = Blueprint('words', __name__, url_prefix='/words')
 # -----------------------------------------------------------------------------
 
 
+@words_bp.route('/how-many/<int:user_id>', methods=['GET'])
+# @jwt_required()
+def how_many_words(user_id):
+    try:
+        words = database.read_by_field('words', 'user_id', user_id)
+
+        count = len(words)
+
+        return jsonify({'count': count}), 200
+
+    except Exception as e:
+        return jsonify(
+            {'error': f'Error al procesar la solicitud: {str(e)}'}
+        ), 500
+
+
 @words_bp.route('/<int:user_id>', methods=['GET'])
 # @jwt_required()
 def get_all_words(user_id):
