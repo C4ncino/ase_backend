@@ -67,7 +67,6 @@ def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.
     return x_train, x_val, y_train, y_val
 
 
-
 def prepare_data_for_lm(user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     user_words = database.read_by_field('words', 'user_id', user_id)
 
