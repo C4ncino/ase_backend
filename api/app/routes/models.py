@@ -1,77 +1,46 @@
-from flask import Blueprint, jsonify, request
-import base64
 import datetime as dt
 from app.database import database
+from app.utils import pp_decorator
+from flask import Blueprint, jsonify, request
 
 models_bp = Blueprint('models', __name__, url_prefix='/models')
 
-def get_file(file_id):
-    try:
-        file = database.read_by_id('models', file_id) 
-
-        if file:
-            # Codificar los datos binarios en Base64
-            encoded_file_data = base64.b64encode(file.file_data).decode('utf-8')
-            return file, encoded_file_data
-        else:
-            return None
-    except Exception as e:
-        print(f"Error retrieving the file: {e}")
-        return None
-
-@models_bp.route('/download/<int:file_id>', methods=['GET'])
-def download_file(file_id):
-    file = get_file(file_id)
-
-    if file:
-        file_obj, file_data = file 
-
-        # Enviar la respuesta JSON con el archivo codificado
-        return jsonify({
-            'file': file_obj.serialize(),
-            'file_data': file_data 
-        }), 200
-    else:
-        return jsonify({"error": "File not found"}), 404
-
-#CHECAR VERSION MODELO
 
 @models_bp.route('/check_version/<int:user_id>', methods=['POST'])
+@pp_decorator(request, required_fields=['date'])
+# @jwt_required()
 def check_model_version(user_id):
     try:
-        # Obtener la fecha de la solicitud
         request_data = request.json
         request_date_str = request_data.get('date')
-        
-        # Convertir la fecha de solicitud a un objeto datetime
+
         request_date = dt.strptime(request_date_str, "%d-%m-%Y %H:%M:%S")
 
-        # Obtener el modelo más reciente para el usuario
-        latest_model = database.read_by_field('models', 'id', user_id)
+        latest_model = database.read_by_field('models', 'id', user_id)[0]
 
         if not latest_model:
-            return jsonify({'error': 'No se encontró ningún modelo para este usuario.'}), 404
+            return jsonify(
+                {'error': 'No se encontró ningún modelo para este usuario.'}
+            ), 404
 
-        # Obtener la fecha de la última actualización del modelo
         latest_model_date = latest_model.last_update
 
-       # Comparar fechas
-        is_updated = latest_model_date <= request_date  # True si está actualizado, False si hay una versión más nueva
+        is_updated = latest_model_date <= request_date
 
         if is_updated:
+            formatted_date = latest_model_date.strftime("%d-%m-%Y %H:%M:%S")
+
             return jsonify({
                 'updated': True,
-                'latest_version_date': latest_model_date.strftime('%Y-%m-%d %H:%M:%S')
+                'latest_version_date': formatted_date
             }), 200
         else:
             return jsonify({
                 'updated': False,
-                'latest_model': {
-                    'id': latest_model.id,
-                    'model_name': latest_model.model_name,
-                    'latest_version_date': latest_model_date.strftime('%Y-%m-%d %H:%M:%S')
-                }
+                'latest_model': latest_model.serialize()
             }), 200
 
     except Exception as e:
-        return jsonify({'error': f'Error al procesar la solicitud: {str(e)}'}), 500
+        return jsonify(
+            {'error': f'Error al procesar la solicitud: {str(e)}'}
+        ), 500

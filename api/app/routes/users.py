@@ -60,7 +60,6 @@ def login():
     ), 200
 
 
-# SIGN UP
 @users_bp.route('/sign-up', methods=['POST'])
 @pp_decorator(
     request,
@@ -91,7 +90,6 @@ def signup():
         return jsonify({'error': 'Correo ya registrado'}), 400
 
 
-# REFRESH
 @users_bp.route('/refresh')
 @jwt_required()
 def refresh():
@@ -101,7 +99,6 @@ def refresh():
     return jsonify({'token': new_access_token}), 200
 
 
-# ME
 @users_bp.route('/me')
 @jwt_required()
 def me():

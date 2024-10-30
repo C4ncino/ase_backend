@@ -197,3 +197,23 @@ def get_word_by_id(word_id):
         return jsonify(
             {'error': f'Error al procesar la solicitud: {str(e)}'}
         ), 500
+
+
+@words_bp.route('/get-class-key/<int:class_key>', methods=['GET'])
+# @jwt_required()
+def get_by_class_key(class_key):
+    try:
+        word = database.read_by_field('words', 'class_key', class_key)[0]
+
+        if not word:
+            return jsonify({'error': 'Palabra no encontrada'}), 404
+
+        return jsonify({
+            'word': word.serialize(),
+            'model': word.model
+        }), 200
+
+    except Exception as e:
+        return jsonify(
+            {'error': f'Error al procesar la solicitud: {str(e)}'}
+        ), 500
