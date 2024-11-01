@@ -80,7 +80,7 @@ def validate_check(task_id):
               required_fields=['sensor_data', 'word', 'user_id', 'chars'])
 # @jwt_required()
 def train():
-    # try:
+    try:
         sensor_data = request.json['sensor_data']
 
         user_id = request.json['user_id']
@@ -102,8 +102,8 @@ def train():
             'task': task.id
         }), 200
 
-    # except Exception as e:
-    #     return jsonify({'error': str(e)}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @training_bp.route('/<string:task_id>')
