@@ -21,7 +21,7 @@ def remove_by_dtw(sensor_data: list[dict]) -> list[int]:
     return bad_samples, threshold, centroid.tolist(), radius
 
 
-@shared_task(ignore_result=True, bind=True)
+@shared_task(ignore_result=False, bind=True)
 def train_models(self, sensor_data: list[dict], db_info: dict) -> tuple[dict, dict, list[dict]]:
     best_model = None
     best_metrics = None
@@ -84,15 +84,12 @@ def train_models(self, sensor_data: list[dict], db_info: dict) -> tuple[dict, di
 
     db_info['model'] = model_info
 
-    db_info['class_key'] = len(user_words) + 1
+    db_info['class_key'] = len(user_words)
 
-    self.update_state(
-        state=states.SUCCESS,
-        meta=(db_info, sensor_data)
-    )
+    return db_info, sensor_data
 
 
-@shared_task(ignore_result=True)
+@shared_task(ignore_result=False)
 def train_large_model(user_id: int) -> dict:
 
     x_train, x_val, y_train, y_val, n_classes = prepare_data_for_lm(user_id)

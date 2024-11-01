@@ -45,7 +45,8 @@ def get_all_words(user_id):
             {'error': f'Error al procesar la solicitud: {str(e)}'}
         ), 500
 
-@words_bp.route('/<int:word_id>', methods=['GET'])
+
+@words_bp.route('/<int:word_id>/model', methods=['GET'])
 # @jwt_required()
 def get_word_model(word_id):
     try:
@@ -55,9 +56,7 @@ def get_word_model(word_id):
             return jsonify({'error': 'Palabra no encontrada'}), 404
 
         return jsonify({
-            'word': word.word,
-            'model': word.model,
-            'class_key': word.class_key
+            'model': word.model
         }), 200
 
     except Exception as e:
