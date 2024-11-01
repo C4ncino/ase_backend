@@ -12,6 +12,12 @@ Backend:
             ☐ Probar celery en node
             ☐ Agregar servicio de Express al docker
         ☐ Definir archivos a mover y dependencias a eliminar
+            ✔ get_data
+            ✔ validate
+            ✘ large_models
+            ✘ small_models
+            ✘ metrics
+            ✘ convert
         ☐ Traducir a Express todos los modulos
         ☐ Conectar todas las rutas
         ☐ Agregar procesamiento de las response de express 
