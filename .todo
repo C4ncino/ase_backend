@@ -1,16 +1,30 @@
 Backend:
-    ✔ Hacer ruta Login @1h @started(24-08-29 19:24) @done(24-08-30 12:04) @lasted(16h40m30s)
-    ✔ Hacer ruta sign up @done(24-08-30 12:04)
-    ✔ Hacer ruta words, con get all, update, add word @done(24-09-06 23:38)
-    ✔ Clase Word @done(24-09-06 23:38)
-    ✔ Como hacer un refresh del token. le mando una peticion  y me regresa un token actualizado. @started(24-09-06 23:42) @done(24-09-07 00:19) @lasted(37m43s)
-    ✔ Ruta me, me tiene que devolver mi usuario, solo le mando el token, va encriptado el ID de usuario @started(24-09-08 16:23) @done(24-09-08 16:44) @lasted(21m23s)
 
-    ☐ Hacer Modelo grande y su actualización
     ☐ Agregar toma de muestras de otros condicional dependiendo el numero de palabras del usuario
     ☐ En menos de 5 palabras entrenar todos los modelos
         ☐ Factorizar la task de entrenamiento
 
-    ✔ Secuencia para generar datos para probar los modelos por aparte (dump de las tablas) `NABILA` @done(24-10-24 18:29)
+    ☐ Ruta para pedir actualizacion de modelos
 
-    ☐ Validacion de palabra ya existente
+    ☐ Cambio a de modulo de entrenamiento a express
+        ✔ Verficar compatibildada en react native @done(24-10-31 17:29)
+        ☐ Hacer prueba de comunicacion entre express y flask
+            ☐ Probar celery en node
+            ☐ Agregar servicio de Express al docker
+        ☐ Definir archivos a mover y dependencias a eliminar
+        ☐ Traducir a Express todos los modulos
+        ☐ Conectar todas las rutas
+        ☐ Agregar procesamiento de las response de express 
+        ☐ Probar e2e
+
+
+Archive:
+  ✔ Validacion de palabra ya existente @done(24-10-31 16:31) @project(Backend)
+  ✔ Hacer ruta Login @1h @started(24-08-29 19:24) @done(24-08-30 12:04) @lasted(16h40m30s) @project(Backend)
+  ✔ Hacer ruta sign up @done(24-08-30 12:04) @project(Backend)
+  ✔ Hacer ruta words, con get all, update, add word @done(24-09-06 23:38) @project(Backend)
+  ✔ Clase Word @done(24-09-06 23:38) @project(Backend)
+  ✔ Como hacer un refresh del token. le mando una peticion  y me regresa un token actualizado. @started(24-09-06 23:42) @done(24-09-07 00:19) @lasted(37m43s) @project(Backend)
+  ✔ Ruta me, me tiene que devolver mi usuario, solo le mando el token, va encriptado el ID de usuario @started(24-09-08 16:23) @done(24-09-08 16:44) @lasted(21m23s) @project(Backend)
+  ✔ Hacer Modelo grande y su actualización @done(24-10-31 16:31) @project(Backend)
+  ✔ Secuencia para generar datos para probar los modelos por aparte (dump de las tablas) `NABILA` @done(24-10-24 18:29) @project(Backend)

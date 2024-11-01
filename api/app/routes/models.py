@@ -14,7 +14,7 @@ def check_model_version(user_id):
         request_data = request.json
         request_date_str = request_data.get('date')
 
-        request_date = dt.strptime(request_date_str, "%d-%m-%Y %H:%M:%S")
+        request_date = dt.datetime.strptime(request_date_str, "%d-%m-%Y %H:%M:%S")
 
         latest_model = database.read_by_field('models', 'id', user_id)[0]
 
@@ -44,3 +44,18 @@ def check_model_version(user_id):
         return jsonify(
             {'error': f'Error al procesar la solicitud: {str(e)}'}
         ), 500
+
+
+@models_bp.route('/<int:user_id>', methods=['PUT'])
+# @jwt_required()
+def update_model(user_id):
+    data = request.json
+
+    data['last_update'] = dt.datetime.now()
+
+    model = database.update_table_row('models', user_id, data)
+
+    if not model:
+        return jsonify({'error': 'Fallo en la actualización'}), 500
+
+    return jsonify({'model': model.serialize()}), 200
