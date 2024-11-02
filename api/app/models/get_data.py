@@ -51,7 +51,7 @@ def pad_sequences(in_array: list[np.ndarray], n=MAX_LEN):
 def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     n_samples = len(sensor_data)
 
-    current_data = np.array([pd.DataFrame(i).values for i in sensor_data])
+    current_data = np.array([pd.DataFrame(i).values for i in sensor_data], dtype=object)
     current_labels = np.array([1]*n_samples)
 
     user_words = database.read_by_field('words', 'user_id', user_id)
@@ -67,12 +67,14 @@ def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.
             other_words_data.append(pd.DataFrame(json[i]).values)
 
     if len(other_words_data) > 0:
-        data = np.concatenate(
-            (current_data, np.array(other_words_data), generate_random())
-        )
-
         labels = np.concatenate(
             (current_labels, np.zeros(len(other_words_data)), np.zeros(20))
+        )
+
+        other_words_data = np.array(other_words_data, dtype=object)
+
+        data = np.concatenate(
+            (current_data, other_words_data, generate_random())
         )
 
     else:
@@ -101,7 +103,9 @@ def prepare_data_for_lm(user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarra
             training_data_arr.append(pd.DataFrame(sample).values)
             labels_arr.append(word.class_key)
 
-    data = np.concatenate((np.array(training_data_arr), generate_random()))
+    training_data = np.array(training_data_arr, dtype=object)
+
+    data = np.concatenate((training_data, generate_random()))
     labels = np.concatenate((np.array(labels_arr), np.zeros(20)))
 
     data = pad_sequences(data)

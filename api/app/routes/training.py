@@ -80,30 +80,30 @@ def validate_check(task_id):
               required_fields=['sensor_data', 'word', 'user_id', 'chars'])
 # @jwt_required()
 def train():
-    try:
-        sensor_data = request.json['sensor_data']
+    # try:
+    sensor_data = request.json['sensor_data']
 
-        user_id = request.json['user_id']
+    user_id = request.json['user_id']
 
-        x_train, x_val, y_train, y_val = prepare_data(sensor_data, user_id)
+    x_train, x_val, y_train, y_val = prepare_data(sensor_data, user_id)
 
-        task = train_models.delay({
-            'xTrain': x_train.tolist(),
-            'xVal': x_val.tolist(),
-            'yTrain': y_train.tolist(),
-            'yVal': y_val.tolist()
-        }, {
-            'user_id': request.json['user_id'],
-            'word': request.json['word'],
-            'characteristics': request.json['chars']
-        }, sensor_data)
+    task = train_models.delay({
+        'xTrain': x_train.tolist(),
+        'xVal': x_val.tolist(),
+        'yTrain': y_train.tolist(),
+        'yVal': y_val.tolist()
+    }, {
+        'user_id': request.json['user_id'],
+        'word': request.json['word'],
+        'characteristics': request.json['chars']
+    }, sensor_data)
 
-        return jsonify({
-            'task': task.id
-        }), 200
+    return jsonify({
+        'task': task.id
+    }), 200
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    # except Exception as e:
+    #     return jsonify({'error': str(e)}), 500
 
 
 @training_bp.route('/<string:task_id>')
