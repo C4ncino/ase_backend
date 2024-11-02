@@ -11,6 +11,7 @@ def celery_init_app(app):
     celery_app.config_from_object(app.config["CELERY"])
     celery_app.set_default()
 
+    celery_app.conf.task_queues = app.config["CELERY"]["task_queues"]
     app.extensions["celery"] = celery_app
 
     return celery_app

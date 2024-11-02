@@ -2,23 +2,50 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from app.database import database
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-max_len= 60
+MAX_LEN = 60
+
 
 def generate_random(quantity=20) -> np.ndarray:
     samples = []
 
     for _ in range(quantity):
+        random_size = np.random.randint(54, 65)
+
         first_five = np.random.randint(0, 6, size=(60, 5))
 
-        last_three = np.random.randint(-999, 1000, size=(60, 3))
+        first_five = np.random.randint(0, 6, size=(random_size, 5))
+
+        last_three = np.random.uniform(-9.99, 10.0, size=(random_size, 3))
+
+        last_three = np.round(last_three, 2)
 
         samples.append(np.concatenate((first_five, last_three), axis=1))
 
-    samples_array = np.array(samples)
+    samples_array = np.array(samples, dtype=object)
 
     return samples_array
+
+
+def pad_sequences(in_array: list[np.ndarray], n=MAX_LEN):
+    pad_sequence = []
+
+    for sample in in_array:
+        current_len = len(sample)
+
+        if current_len < n:
+            relleno = np.full((n - current_len, 8), 0.0)
+            pad_sample = np.concatenate((sample, relleno))
+
+        elif current_len > n:
+            pad_sample = sample[:n]
+
+        else:
+            pad_sample = sample
+
+        pad_sequence.append(pad_sample)
+
+    return np.array(pad_sequence)
 
 
 def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -52,13 +79,11 @@ def prepare_data(sensor_data: list[dict], user_id: int) -> tuple[np.ndarray, np.
         data = np.concatenate((current_data, generate_random()))
         labels = np.concatenate((current_labels, np.zeros(20)))
 
-    data = pad_sequences(data, maxlen=max_len, padding='post', dtype='float32')
-
+    data = pad_sequences(data)
 
     x_train, x_val, y_train, y_val = train_test_split(data, labels, test_size=0.2, stratify=labels)
 
     return x_train, x_val, y_train, y_val
-
 
 
 def prepare_data_for_lm(user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -79,8 +104,8 @@ def prepare_data_for_lm(user_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarra
     data = np.concatenate((np.array(training_data_arr), generate_random()))
     labels = np.concatenate((np.array(labels_arr), np.zeros(20)))
 
-    data = pad_sequences(data, maxlen=max_len, padding='post', dtype='float32')
+    data = pad_sequences(data)
 
     x_train, x_val, y_train, y_val = train_test_split(data, labels, test_size=0.2, stratify=labels)
 
-    return x_train, x_val, y_train, y_val, len(user_words)
+    return x_train, x_val, y_train, y_val, len(user_words) + 1

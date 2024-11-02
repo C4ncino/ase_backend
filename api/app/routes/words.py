@@ -10,6 +10,22 @@ words_bp = Blueprint('words', __name__, url_prefix='/words')
 # -----------------------------------------------------------------------------
 
 
+@words_bp.route('/how-many/<int:user_id>', methods=['GET'])
+# @jwt_required()
+def how_many_words(user_id):
+    try:
+        words = database.read_by_field('words', 'user_id', user_id)
+
+        count = len(words)
+
+        return jsonify({'count': count}), 200
+
+    except Exception as e:
+        return jsonify(
+            {'error': f'Error al procesar la solicitud: {str(e)}'}
+        ), 500
+
+
 @words_bp.route('/<int:user_id>', methods=['GET'])
 # @jwt_required()
 def get_all_words(user_id):
@@ -131,16 +147,38 @@ def data_dump(user_id):
 # @jwt_required()
 def check_word_exists(user_id, word):
     try:
-        existing_words = database.read_by_fields('words', {'user_id': user_id, 'word': word.lower()})
+        existing_words = database.read_by_fields(
+            'words',
+            [
+                {
+                    'field': 'user_id',
+                    'value': user_id,
+                    'comparison': '='
+                },
+                {
+                    'field': 'word',
+                    'value': word.lower(),
+                    'comparison': 'eq'
+                }
 
-        if existing_words:
-            return jsonify({'exists': True, 'message': 'La palabra ya existe para este usuario'}), 200
-        else:
-            return jsonify({'exists': False, 'message': 'La palabra no existe para este usuario'}), 200
+            ]
+        )
+
+        message = f"La palabra {'ya' if existing_words else 'no'} "
+        "existe para este usuario"
+
+        return jsonify(
+            {
+                'exists': True if existing_words else False,
+                'message': message
+            }
+        ), 200
 
     except Exception as e:
-        return jsonify({'error': f'Error al procesar la solicitud: {str(e)}'}), 500
-    
+        return jsonify(
+            {'error': f'Error al procesar la solicitud: {str(e)}'}
+        ), 500
+
 
 @words_bp.route('/get/<int:word_id>', methods=['GET'])
 # @jwt_required()
@@ -156,4 +194,26 @@ def get_word_by_id(word_id):
         }), 200
 
     except Exception as e:
-        return jsonify({'error': f'Error al procesar la solicitud: {str(e)}'}), 500
+        return jsonify(
+            {'error': f'Error al procesar la solicitud: {str(e)}'}
+        ), 500
+
+
+@words_bp.route('/get-class-key/<int:class_key>', methods=['GET'])
+# @jwt_required()
+def get_by_class_key(class_key):
+    try:
+        word = database.read_by_field('words', 'class_key', class_key)[0]
+
+        if not word:
+            return jsonify({'error': 'Palabra no encontrada'}), 404
+
+        return jsonify({
+            'word': word.serialize(),
+            'model': word.model
+        }), 200
+
+    except Exception as e:
+        return jsonify(
+            {'error': f'Error al procesar la solicitud: {str(e)}'}
+        ), 500
