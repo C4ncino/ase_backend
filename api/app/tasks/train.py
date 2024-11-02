@@ -3,7 +3,7 @@ from celery import shared_task
 from app.models import inspect_movement, get_centroid
 
 
-@shared_task(ignore_result=False)
+@shared_task(ignore_result=False, name='remove_by_dtw', queue='python_only')
 def remove_by_dtw(sensor_data: list[dict]) -> list[int]:
     bad_samples, threshold = inspect_movement(sensor_data)
 

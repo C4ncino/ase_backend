@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
+from kombu import Queue
 
 load_dotenv()
 
@@ -29,7 +30,14 @@ class AppConfig:
     CELERY = dict(
         broker_url=CELERY_BROKER_URL,
         result_backend=CELERY_RESULT_BACKEND,
-        task_ignore_result=True
+        task_ignore_result=True,
+        task_routes=dict(
+            remove_by_dtw={'queue': 'python_only'}
+        ),
+        task_queues=[
+            Queue('default'),
+            Queue('python_only'),
+        ]
     )
 
 

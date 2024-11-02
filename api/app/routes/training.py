@@ -137,7 +137,7 @@ def train_check(task_id):
                 'xVal': x_val.tolist(),
                 'yTrain': y_train.tolist(),
                 'yVal': y_val.tolist()
-            }, 
+            },
             n_classes,
             user_id
         )
@@ -145,7 +145,7 @@ def train_check(task_id):
         return jsonify({
             "ready": result.ready(),
             "success": result.successful(),
-            "word": db_info,
+            "word": row.serialize(),
             "train_large_task": train_task.id,
         }), 200
 
