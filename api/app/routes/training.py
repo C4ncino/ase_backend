@@ -118,7 +118,7 @@ def train_check(task_id):
 
         user_words = database.read_by_field('words', 'user_id', user_id)
 
-        db_info['class_key'] = len(user_words)
+        db_info['class_key'] = len(user_words) + 1
 
         _, row = database.create_table_row('words', db_info)
 

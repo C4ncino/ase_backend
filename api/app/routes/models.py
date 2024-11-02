@@ -1,4 +1,4 @@
-import datetime as dt
+from datetime import datetime as dt
 from app.database import database
 from app.utils import pp_decorator
 from flask import Blueprint, jsonify, request
@@ -7,13 +7,14 @@ models_bp = Blueprint('models', __name__, url_prefix='/models')
 
 
 @models_bp.route('/check_version/<int:user_id>', methods=['POST'])
+@pp_decorator(request, required_fields=['date', 'small'])
 def check_model_version(user_id):
     try:
         request_data = request.json
         request_date_str = request_data.get('date')
         request_date = dt.strptime(request_date_str, "%d-%m-%Y %H:%M:%S")
 
-        latest_model = database.read_by_field('models', 'id', user_id)[0]
+        latest_model = database.read_by_id('models', user_id)
 
         if not latest_model:
             return jsonify(
@@ -22,13 +23,13 @@ def check_model_version(user_id):
 
         latest_model_date = latest_model.last_update
 
-        session_class_keys = request_data.get("class_keys", {}).keys()
+        session_class_keys = [int(key) for key in request_data.get("small", {}).keys()]
 
         words = database.read_by_field('words', 'user_id', user_id)
 
         db_class_keys = [w.class_key for w in words]
 
-        class_keys_faltantes = db_class_keys - session_class_keys
+        class_keys_faltantes = set(db_class_keys) - set(session_class_keys)
 
         is_updated = latest_model_date <= request_date
 
