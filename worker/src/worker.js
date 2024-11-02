@@ -1,8 +1,15 @@
 "use strict";
 import celery from "celery-node";
+import "@tensorflow/tfjs-node";
+import {ready} from "@tensorflow/tfjs";
 import { trainModels } from "./tasks/train-small.js";
 import { trainLargeModel } from "./tasks/train-large.js";
-import "@tensorflow/tfjs-node";
+
+const start = async () => {
+    await ready();
+}
+
+start();
 
 const celeryWorker = celery.createWorker("redis://redis", "redis://redis");
 

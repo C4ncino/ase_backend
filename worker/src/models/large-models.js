@@ -1,25 +1,17 @@
-import * as tf from "@tensorflow/tfjs";
-
-const SHAPE = [60, 8];
-
-const INPUT_CONFIG = {
-  returnSequences: true,
-  inputShape: SHAPE,
-  kernelInitializer: "randomNormal",
-  recurrentInitializer: "randomNormal",
-}
+import { sequential, layers, train } from "@tensorflow/tfjs";
+import {InputConfig, Initializers} from "./utils.js";
 
 const get_large_LSTM_v1 = () => {
-  return tf.sequential({
+  return sequential({
     layers: [
-      tf.layers.lstm({ units: 256, ...INPUT_CONFIG }),
-      tf.layers.dropout({ rate: 0.2 }),
-      tf.layers.lstm({ units: 128, returnSequences: true }),
-      tf.layers.dropout({ rate: 0.3 }),
-      tf.layers.lstm({ units: 64 }),
-      tf.layers.dropout({ rate: 0.3 }),
-      tf.layers.dense({ units: 128, activation: "relu" }),
-      tf.layers.dropout({ rate: 0.4 }),
+      layers.lstm({ units: 172, ...InputConfig, ...Initializers }),
+      layers.dropout({ rate: 0.2 }),
+      layers.lstm({ units: 96, returnSequences: true, ...Initializers }),
+      layers.dropout({ rate: 0.3 }),
+      layers.lstm({ units: 56, ...Initializers }),
+      layers.dropout({ rate: 0.3 }),
+      layers.dense({ units: 128, activation: "relu" }),
+      layers.dropout({ rate: 0.4 }),
     ],
   });
 };
@@ -34,10 +26,14 @@ export const get_large_model = (type, n_classes) => {
   }
 
   if (model) {
-    model.add(tf.layers.dense({ units: n_classes, activation: "softmax" }));
+    model.add(layers.dense({ units: n_classes, activation: "softmax" }));
+
+    const initLR = 0.001;
+    const initMomentum = 0.9;
+    const optimizer = train.momentum(initLR, initMomentum);
 
     model.compile({
-      optimizer: "adam",
+      optimizer,
       loss: "sparseCategoricalCrossentropy",
       metrics: ["accuracy"],
     });
