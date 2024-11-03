@@ -14,11 +14,11 @@ class AppConfig:
 
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(
-        hours=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 1))
+        days=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 2))
     )
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(
-        days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 30))
-    )
+    # JWT_REFRESH_TOKEN_EXPIRES =s timedelta(
+    #     days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 30))
+    # )
 
     CELERY_BROKER_URL = os.getenv(
         'CELERY_BROKER_URL', 'redis://localhost:6379/0'
