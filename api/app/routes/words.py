@@ -153,7 +153,7 @@ def check_word_exists(user_id, word):
                 {
                     'field': 'user_id',
                     'value': user_id,
-                    'comparison': '='
+                    'comparison': 'eq'
                 },
                 {
                     'field': 'word',
@@ -164,8 +164,7 @@ def check_word_exists(user_id, word):
             ]
         )
 
-        message = f"La palabra {'ya' if existing_words else 'no'} "
-        "existe para este usuario"
+        message = f"La palabra {'ya' if existing_words else 'no'} existe para este usuario"
 
         return jsonify(
             {

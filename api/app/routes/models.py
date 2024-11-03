@@ -21,7 +21,9 @@ def check_model_version(user_id):
                 {'error': 'No se encontró ningún modelo para este usuario.'}
             ), 404
 
-        latest_model_date = latest_model.last_update
+        latest_model_str = latest_model.last_update.strftime('%d-%m-%Y %H:%M:%S')
+
+        latest_model_date = dt.strptime(latest_model_str, "%d-%m-%Y %H:%M:%S")
 
         session_class_keys = [int(key) for key in request_data.get("small", {}).keys()]
 
@@ -31,29 +33,23 @@ def check_model_version(user_id):
 
         class_keys_faltantes = set(db_class_keys) - set(session_class_keys)
 
-        is_updated = latest_model_date <= request_date
+        is_updated = latest_model_date == request_date
 
-        if is_updated and len(class_keys_faltantes) == 0:
-            return jsonify({
-                'updated': True,
-                'latest_version_date': latest_model_date.strftime('%Y-%m-%d %H:%M:%S'),
-                'class_keys_status': 'sin_actualizacion'
-            }), 200
+        has_missing_words = len(class_keys_faltantes) > 0
 
-        else:
-            return jsonify({
-                'updated': False,
-                'latest_model': latest_model.serialize(),
-                'palabras faltantes': [
-                    {
-                        'word': w.word,
-                        'class_key': w.class_key,
-                        'model': w.model
-                    }
-                    for w in words if w.class_key in class_keys_faltantes
-                ],
-                'class_keys_status': 'actualizacion_necesaria'
-            }), 200
+        return jsonify({
+            'large_updated': is_updated,
+            'latest_model': latest_model.serialize() if not is_updated else None,
+            'small_updated': not has_missing_words,
+            'small_models': [
+                {
+                    'word': w.word,
+                    'class_key': w.class_key,
+                    'model': w.model
+                }
+                for w in words if w.class_key in class_keys_faltantes
+            ] if has_missing_words else None,
+        }), 200
 
     except Exception as e:
         return jsonify(
