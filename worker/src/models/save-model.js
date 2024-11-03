@@ -31,7 +31,7 @@ export const getModelInfo = async (model) => {
       modelInfo.weights[weightFile] = weightContent.toString("base64");
     }
 
-  // fs.rmSync(tmpDir, { recursive: true });
+  fs.rmSync(tmpDir, { recursive: true });
 
   return modelInfo;
 };

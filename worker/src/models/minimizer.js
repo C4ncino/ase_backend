@@ -13,13 +13,7 @@ export const minimizeModel = (model, bitDepth = 8, threshold = 0.0075) => {
 
               for (let i = 0; i < data.length; i++) {  
                 //* Prune
-                if (Math.abs(data[i]) < threshold) {
-                    console.log(`Pruning: ${data[i]}`);
-                    prunedData[i] = 0;
-                }
-                else {
-                    prunedData[i] = data[i];
-                }
+                prunedData[i] = Math.abs(data[i]) < threshold? 0 : data[i];
 
   
                 //? Quantize

@@ -47,10 +47,9 @@ const calculateRocAuc = (y_true, y_pred_prob) => {
   );
 };
 
-export const calculateMetrics = (y_true, y_pred, y_pred_prob) => {
+export const calculateMetrics = (y_true, y_pred) => {
   const yTrue = Array.from(y_true);
   const yPred = Array.from(y_pred);
-  const yPredProb = Array.from(y_pred_prob);
 
   const tp = yTrue.reduce(
     (acc, val, i) => acc + (val === 1 && yPred[i] === 1 ? 1 : 0),
@@ -70,7 +69,7 @@ export const calculateMetrics = (y_true, y_pred, y_pred_prob) => {
   const recall = tp / (tp + fn) || 0;
   const f1_score = (2 * (precision * recall)) / (precision + recall) || 0;
 
-  const roc_auc = calculateRocAuc(yTrue, yPredProb);
+  const roc_auc = calculateRocAuc(yTrue, yPred);
 
   return {
     accuracy,
@@ -95,22 +94,23 @@ export const hasBetterMetrics = (current_metrics, best_metrics) => {
   return false;
 };
 
-
 export const earlyStoppingCallback = {
   monitor: "val_loss", // Métrica a monitorear
-  patience: 5,         // Épocas sin mejora antes de detenerse
-  minDelta: 0.001,     // Mínima mejora requerida
+  patience: 5, // Épocas sin mejora antes de detenerse
+  minDelta: 0.001, // Mínima mejora requerida
   bestValMetric: Infinity,
   epochsWithoutImprovement: 0,
 
-  onEpochEnd: async function(epoch, logs) {
+  onEpochEnd: async function (epoch, logs) {
     const currentValMetric = logs["val_loss"];
     console.log(`Epoch ${epoch + 1} - "val_loss": ${currentValMetric}`);
 
-    console.log(this.minDelta, this.bestValMetric, this.epochsWithoutImprovement);
+    console.log(
+      this.minDelta,
+      this.bestValMetric,
+      this.epochsWithoutImprovement
+    );
     console.log(this.monitor, this.patience);
-    
-    
 
     if (currentValMetric < this.bestValMetric - this.minDelta) {
       this.bestValMetric = currentValMetric;
@@ -123,7 +123,7 @@ export const earlyStoppingCallback = {
       console.log(`Early stopping triggered on epoch ${epoch + 1}`);
       this.model.stopTraining = true;
     }
-  }
+  },
 };
 
 export const createEarlyStoppingCallback = (model) => {
@@ -137,7 +137,6 @@ export const createEarlyStoppingCallback = (model) => {
       const currentValLoss = logs.val_loss;
       console.log(`Epoch ${epoch + 1} - val_loss: ${currentValLoss}`);
       console.log(epochsWithoutImprovement);
-      
 
       if (currentValLoss < bestValLoss - minDelta) {
         bestValLoss = currentValLoss;
@@ -150,6 +149,6 @@ export const createEarlyStoppingCallback = (model) => {
         console.log(`Early stopping triggered on epoch ${epoch + 1}`);
         model.stopTraining = true; // Detener entrenamiento
       }
-    }
+    },
   };
 };

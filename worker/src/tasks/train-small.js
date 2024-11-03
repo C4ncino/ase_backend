@@ -37,22 +37,10 @@ export const trainModels = async (trainingData, dbInfo, sensorData) => {
 
     const minModel = minimizeModel(model);
 
-    console.log(model.layers[0].getWeights()[0].dataSync()[0])
-    console.log(minModel.layers[0].getWeights()[0].dataSync()[0])
-    
-
-    const yPredMinProb = minModel.predict(xValTensor).dataSync();
-    const yPredMin = yPredMinProb.map((prob) => (prob > 0.5 ? 1 : 0));
-
-    const yPredProb = model.predict(xValTensor).dataSync();
+    const yPredProb = minModel.predict(xValTensor).dataSync();
     const yPred = yPredProb.map((prob) => (prob > 0.5 ? 1 : 0));
 
-    const metrics = calculateMetrics(yValTensor.dataSync(), yPred, yPredProb);
-    const minMetrics = calculateMetrics(yValTensor.dataSync(), yPredMin, yPredMinProb);
-
-
-    logMetrics(metrics);
-    logMetrics(minMetrics);
+    const metrics = calculateMetrics(yValTensor.dataSync(), yPred);
 
     if (metrics.roc_auc > 0.85) {
       bestModel = model;
@@ -81,8 +69,6 @@ export const trainModels = async (trainingData, dbInfo, sensorData) => {
   bestModel.summary();
 
   logMetrics(bestMetrics);
-
-  bestModel = minimizeModel(bestModel, 16, 0.01);
 
   const modelInfo = await getModelInfo(bestModel);
 
