@@ -1,8 +1,8 @@
 import { getModel, SMALL_MODEL_POOL } from "../models/small-models.js";
 import { calculateMetrics, hasBetterMetrics, createEarlyStoppingCallback } from "../models/metrics.js";
 import { getModelInfo } from "../models/save-model.js"
-import {log, tensor} from "@tensorflow/tfjs";
-import {minimizeModel} from "../models/minimizer.js"
+import { tensor } from "@tensorflow/tfjs";
+import { minimizeModel } from "../models/minimizer.js"
 import { calculateBatchSize, logMetrics } from "../models/utils.js";
 
 export const trainModels = async (trainingData, dbInfo, sensorData) => {
@@ -31,8 +31,8 @@ export const trainModels = async (trainingData, dbInfo, sensorData) => {
       epochs: 20,
       batchSize: batchSize,
       validationData: [xValTensor, yValTensor],
-      // verbose: 0,
       callbacks: [callBack]
+      // verbose: 0,
     });
 
     const minModel = minimizeModel(model);

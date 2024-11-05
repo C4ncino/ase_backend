@@ -1,6 +1,6 @@
 from datetime import datetime as dt
 from celery.result import AsyncResult
-# from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required
 from flask import Blueprint, jsonify, request
 
 from app.database import database
@@ -14,7 +14,7 @@ training_bp = Blueprint('training', __name__, url_prefix='/train')
 
 @training_bp.route('/validate', methods=['POST'])
 @pp_decorator(request, required_fields=['sensor_data'])
-# @jwt_required()
+@jwt_required()
 def validate_data():
     data = request.json
 
@@ -49,7 +49,7 @@ def validate_data():
 
 
 @training_bp.route('/validate/<string:task_id>')
-# @jwt_required()
+@jwt_required()
 def validate_check(task_id):
     result = AsyncResult(task_id)
 
@@ -78,36 +78,36 @@ def validate_check(task_id):
 @training_bp.route('', methods=['POST'])
 @pp_decorator(request,
               required_fields=['sensor_data', 'word', 'user_id', 'chars'])
-# @jwt_required()
+@jwt_required()
 def train():
-    # try:
-    sensor_data = request.json['sensor_data']
+    try:
+        sensor_data = request.json['sensor_data']
 
-    user_id = request.json['user_id']
+        user_id = request.json['user_id']
 
-    x_train, x_val, y_train, y_val = prepare_data(sensor_data, user_id)
+        x_train, x_val, y_train, y_val = prepare_data(sensor_data, user_id)
 
-    task = train_models.delay({
-        'xTrain': x_train.tolist(),
-        'xVal': x_val.tolist(),
-        'yTrain': y_train.tolist(),
-        'yVal': y_val.tolist()
-    }, {
-        'user_id': request.json['user_id'],
-        'word': request.json['word'],
-        'characteristics': request.json['chars']
-    }, sensor_data)
+        task = train_models.delay({
+            'xTrain': x_train.tolist(),
+            'xVal': x_val.tolist(),
+            'yTrain': y_train.tolist(),
+            'yVal': y_val.tolist()
+        }, {
+            'user_id': request.json['user_id'],
+            'word': request.json['word'],
+            'characteristics': request.json['chars']
+        }, sensor_data)
 
-    return jsonify({
-        'task': task.id
-    }), 200
+        return jsonify({
+            'task': task.id
+        }), 200
 
-    # except Exception as e:
-    #     return jsonify({'error': str(e)}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @training_bp.route('/<string:task_id>')
-# @jwt_required()
+@jwt_required()
 def train_check(task_id):
     result = AsyncResult(task_id)
 
@@ -158,7 +158,7 @@ def train_check(task_id):
 
 
 @training_bp.route('/large-model/<string:task_id>')
-# @jwt_required()
+@jwt_required()
 def validate_train_large(task_id):
     result = AsyncResult(task_id)
     row = None

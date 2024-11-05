@@ -2,12 +2,14 @@ from datetime import datetime as dt
 from app.database import database
 from app.utils import pp_decorator
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 
 models_bp = Blueprint('models', __name__, url_prefix='/models')
 
 
 @models_bp.route('/check_version/<int:user_id>', methods=['POST'])
 @pp_decorator(request, required_fields=['date', 'small'])
+@jwt_required()
 def check_model_version(user_id):
     try:
         request_data = request.json
@@ -58,7 +60,7 @@ def check_model_version(user_id):
 
 
 @models_bp.route('/<int:user_id>', methods=['PUT'])
-# @jwt_required()
+@jwt_required()
 def update_model(user_id):
     data = request.json
 

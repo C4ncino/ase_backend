@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-# from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required
 from app.utils import pp_decorator
 from app.database import database
 
@@ -11,7 +11,7 @@ words_bp = Blueprint('words', __name__, url_prefix='/words')
 
 
 @words_bp.route('/how-many/<int:user_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def how_many_words(user_id):
     try:
         words = database.read_by_field('words', 'user_id', user_id)
@@ -27,7 +27,7 @@ def how_many_words(user_id):
 
 
 @words_bp.route('/<int:user_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_all_words(user_id):
     try:
         # Recuperar todas las palabras desde la base de datos
@@ -63,7 +63,7 @@ def get_all_words(user_id):
 
 
 @words_bp.route('/<int:word_id>/model', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_word_model(word_id):
     try:
         word = database.read_by_id('words', word_id)
@@ -82,7 +82,7 @@ def get_word_model(word_id):
 
 
 @words_bp.route('/<int:word_id>', methods=['PUT'])
-# @jwt_required()
+@jwt_required()
 @pp_decorator(request, optional_fields=['word'])
 def update_word(word_id):
     data = request.json
@@ -115,7 +115,7 @@ def update_word(word_id):
 
 
 @words_bp.route('/dump/<int:user_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def data_dump(user_id):
     try:
         words = database.read_by_field('words', 'user_id', user_id)
@@ -144,7 +144,7 @@ def data_dump(user_id):
 
 
 @words_bp.route('/exists/<int:user_id>/<string:word>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def check_word_exists(user_id, word):
     try:
         existing_words = database.read_by_fields(
@@ -180,7 +180,7 @@ def check_word_exists(user_id, word):
 
 
 @words_bp.route('/get/<int:word_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_word_by_id(word_id):
     try:
         word = database.read_by_id('words', word_id)
@@ -199,7 +199,7 @@ def get_word_by_id(word_id):
 
 
 @words_bp.route('/get-class-key/<int:class_key>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_by_class_key(class_key):
     try:
         word = database.read_by_field('words', 'class_key', class_key)[0]
