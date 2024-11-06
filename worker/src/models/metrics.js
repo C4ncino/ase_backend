@@ -94,43 +94,11 @@ export const hasBetterMetrics = (current_metrics, best_metrics) => {
   return false;
 };
 
-export const earlyStoppingCallback = {
-  monitor: "val_loss", // Métrica a monitorear
-  patience: 5, // Épocas sin mejora antes de detenerse
-  minDelta: 0.001, // Mínima mejora requerida
-  bestValMetric: Infinity,
-  epochsWithoutImprovement: 0,
-
-  onEpochEnd: async function (epoch, logs) {
-    const currentValMetric = logs["val_loss"];
-    console.log(`Epoch ${epoch + 1} - "val_loss": ${currentValMetric}`);
-
-    console.log(
-      this.minDelta,
-      this.bestValMetric,
-      this.epochsWithoutImprovement
-    );
-    console.log(this.monitor, this.patience);
-
-    if (currentValMetric < this.bestValMetric - this.minDelta) {
-      this.bestValMetric = currentValMetric;
-      this.epochsWithoutImprovement = 0;
-    } else {
-      this.epochsWithoutImprovement += 1;
-    }
-
-    if (this.epochsWithoutImprovement >= this.patience) {
-      console.log(`Early stopping triggered on epoch ${epoch + 1}`);
-      this.model.stopTraining = true;
-    }
-  },
-};
-
 export const createEarlyStoppingCallback = (model) => {
   let bestValLoss = Infinity;
   let epochsWithoutImprovement = 0;
-  const patience = 5; // Épocas sin mejora antes de detenerse
-  const minDelta = 0.001; // Mínima mejora requerida
+  const patience = 5;
+  const minDelta = 0.001;
 
   return {
     onEpochEnd: (epoch, logs) => {
@@ -140,14 +108,14 @@ export const createEarlyStoppingCallback = (model) => {
 
       if (currentValLoss < bestValLoss - minDelta) {
         bestValLoss = currentValLoss;
-        epochsWithoutImprovement = 0; // Reiniciar contador
+        epochsWithoutImprovement = 0;
       } else {
-        epochsWithoutImprovement += 1; // Incrementar si no hay mejora
+        epochsWithoutImprovement += 1;
       }
 
       if (epochsWithoutImprovement >= patience) {
         console.log(`Early stopping triggered on epoch ${epoch + 1}`);
-        model.stopTraining = true; // Detener entrenamiento
+        model.stopTraining = true;
       }
     },
   };
