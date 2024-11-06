@@ -1,7 +1,7 @@
-import {train, layers, sequential} from "@tensorflow/tfjs";
-import {InputConfig, Initializers } from "./utils.js"
+import { train, layers, sequential } from "@tensorflow/tfjs";
+import { InputConfig, Initializers } from "./utils.js";
 
-export const SMALL_MODEL_POOL = [
+export const SMALL_MODELS_POOL = [
   "G3",
   "G4",
   "G5",
@@ -14,142 +14,42 @@ export const SMALL_MODEL_POOL = [
   "L5",
 ];
 
-const get_LSTM_v1 = () => {
+const ModelsConfig = {
+  L1: { l1: 38, d1: 0.1, l2: 16, d2: 0.2, l3: 8, d3: 0.3 },
+  L2: { l1: 36, d1: 0.1, l2: 16, d2: 0.2, l3: 8, d3: 0.3 },
+  L3: { l1: 36, d1: 0.1, l2: 16, d2: 0.3, l3: 8, d3: 0.4 },
+  L4: { l1: 20, d1: 0.1, l2: 30, d2: 0.2, l3: 10, d3: 0.4 },
+  L5: { l1: 38, d1: 0.1, l2: 16, d2: 0.2, l3: 10, d3: 0.4 },
+  // ----------------------------------------------------------
+  G1: { l1: 16, d1: 0.4, l2: 32, d2: 0.4, l3: 4, d3: 0.2 },
+  G2: { l1: 32, d1: 0.2, l2: 8, d2: 0.3, l3: 32, d3: 0.2 },
+  G3: { l1: 32, d1: 0.4, l2: 8, d2: 0.4, l3: 16, d3: 0.3 },
+  G4: { l1: 32, d1: 0.2, l2: 8, d2: 0.2, l3: 8, d3: 0.5 },
+  G5: { l1: 16, d1: 0.1, l2: 12, d2: 0.5, l3: 16, d3: 0.2 },
+};
+
+const get_LSTM = (config) => {
   return sequential({
     layers: [
-      layers.lstm({ units: 38, ...InputConfig, ...Initializers}),
-      layers.dropout({ rate: 0.1 }),
-      layers.lstm({ units: 16, ...Initializers }),
-      layers.dropout({ rate: 0.2 }),
-      layers.dense({ units: 8, activation: "relu" }),
-      layers.dropout({ rate: 0.3 }),
-      layers.dense({ units: 1, activation: "sigmoid" }),
+      layers.lstm({ units: config.l1, ...InputConfig, ...Initializers }),
+      layers.dropout({ rate: config.d1 }),
+      layers.lstm({ units: config.l2, ...Initializers }),
+      layers.dropout({ rate: config.d2 }),
+      layers.dense({ units: config.l3, activation: "relu" }),
+      layers.dropout({ rate: config.d3 }),
     ],
   });
 };
 
-const get_LSTM_v2 = () => {
+const get_GRU = (config) => {
   return sequential({
     layers: [
-      layers.lstm({ units: 36, ...InputConfig, ...Initializers}),
-      layers.dropout({ rate: 0.1 }),
-      layers.lstm({ units: 16, ...Initializers }),
-      layers.dropout({ rate: 0.2 }),
-      layers.dense({ units: 8, activation: "relu" }),
-      layers.dropout({ rate: 0.3 }),
-      layers.dense({ units: 1, activation: "sigmoid" }),
-    ],
-  });
-};
-
-const get_LSTM_v3 = () => {
-  return sequential({
-    layers: [
-      layers.lstm({ units: 36, ...InputConfig, ...Initializers}),
-      layers.dropout({ rate: 0.1 }),
-      layers.lstm({ units: 16, ...Initializers }),
-      layers.dropout({ rate: 0.3 }),
-      layers.dense({ units: 8, activation: "relu" }),
-      layers.dropout({ rate: 0.4 }),
-      layers.dense({ units: 1, activation: "sigmoid" }),
-    ],
-  });
-};
-
-const get_LSTM_v4 = () => {
-  return sequential({
-    layers: [
-      layers.lstm({ units: 20, ...InputConfig, ...Initializers}),
-      layers.dropout({ rate: 0.1 }),
-      layers.lstm({ units: 30, ...Initializers }),
-      layers.dropout({ rate: 0.2 }),
-      layers.dense({ units: 10, activation: "relu" }),
-      layers.dropout({ rate: 0.4 }),
-      layers.dense({ units: 1, activation: "sigmoid" }),
-    ],
-  });
-};
-
-const get_LSTM_v5 = () => {
-  return sequential({
-    layers: [
-      layers.lstm({ units: 38, ...InputConfig, ...Initializers}),
-      layers.dropout({ rate: 0.1 }),
-      layers.lstm({ units: 16, ...Initializers }),
-      layers.dropout({ rate: 0.2 }),
-      layers.dense({ units: 10, activation: "relu" }),
-      layers.dropout({ rate: 0.4 }),
-      layers.dense({ units: 1, activation: "sigmoid" }),
-    ],
-  });
-};
-
-const get_GRU_v1 = () => {
-  return sequential({
-    layers: [
-      layers.gru({ units: 16, ...InputConfig, ...Initializers}),
-      layers.dropout({ rate: 0.4 }),
-      layers.gru({ units: 32, ...Initializers }),
-      layers.dropout({ rate: 0.4 }),
-      layers.dense({ units: 4, activation: "relu" }),
-      layers.dropout({ rate: 0.2 }),
-      layers.dense({ units: 1, activation: "sigmoid" }),
-    ],
-  });
-};
-
-const get_GRU_v2 = () => {
-  return sequential({
-    layers: [
-      layers.gru({ units: 32, ...InputConfig, ...Initializers}),
-      layers.dropout({ rate: 0.2 }),
-      layers.gru({ units: 8, ...Initializers }),
-      layers.dropout({ rate: 0.3 }),
-      layers.dense({ units: 32, activation: "relu" }),
-      layers.dropout({ rate: 0.2 }),
-      layers.dense({ units: 1, activation: "sigmoid" }),
-    ],
-  });
-};
-
-const get_GRU_v3 = () => {
-  return sequential({
-    layers: [
-      layers.gru({ units: 32, ...InputConfig, ...Initializers}),
-      layers.dropout({ rate: 0.4 }),
-      layers.gru({ units: 8, ...Initializers }),
-      layers.dropout({ rate: 0.4 }),
-      layers.dense({ units: 16, activation: "relu" }),
-      layers.dropout({ rate: 0.3 }),
-      layers.dense({ units: 1, activation: "sigmoid" }),
-    ],
-  });
-};
-
-const get_GRU_v4 = () => {
-  return sequential({
-    layers: [
-      layers.gru({ units: 32, ...InputConfig, ...Initializers}),
-      layers.dropout({ rate: 0.2 }),
-      layers.gru({ units: 8, ...Initializers }),
-      layers.dropout({ rate: 0.2 }),
-      layers.dense({ units: 8, activation: "relu" }),
-      layers.dropout({ rate: 0.5 }),
-      layers.dense({ units: 1, activation: "sigmoid" }),
-    ],
-  });
-};
-
-const get_GRU_v5 = () => {
-  return sequential({
-    layers: [
-      layers.gru({ units: 16, ...InputConfig, ...Initializers}),
-      layers.dropout({ rate: 0.1 }),
-      layers.gru({ units: 12, ...Initializers }),
-      layers.dropout({ rate: 0.5 }),
-      layers.dense({ units: 16, activation: "relu" }),
-      layers.dropout({ rate: 0.2 }),
-      layers.dense({ units: 1, activation: "sigmoid" }),
+      layers.gru({ units: config.l1, ...InputConfig, ...Initializers }),
+      layers.dropout({ rate: config.d1 }),
+      layers.gru({ units: config.l2, ...Initializers }),
+      layers.dropout({ rate: config.d2 }),
+      layers.dense({ units: config.l3, activation: "relu" }),
+      layers.dropout({ rate: config.d3 }),
     ],
   });
 };
@@ -157,41 +57,12 @@ const get_GRU_v5 = () => {
 export const getModel = async (type) => {
   let model = undefined;
 
-  switch (type) {
-    case "L1":
-      model = get_LSTM_v1();
-      break;
-    case "L2":
-      model = get_LSTM_v2();
-      break;
-    case "L3":
-      model = get_LSTM_v3();
-      break;
-    case "L4":
-      model = get_LSTM_v4();
-      break;
-    case "L5":
-      model = get_LSTM_v5();
-      break;
-    case "G1":
-      model = get_GRU_v1();
-      break;
-    case "G2":
-      model = get_GRU_v2();
-      break;
-    case "G3":
-      model = get_GRU_v3();
-      break;
-    case "G4":
-      model = get_GRU_v4();
-      break;
-    case "G5":
-      model = get_GRU_v5();
-      break;
-    default:
-      model = get_LSTM_v1();
-      break;
-  }
+  model =
+    type[0] === "L"
+      ? get_LSTM(ModelsConfig[type])
+      : get_GRU(ModelsConfig[type]);
+
+  model.add(layers.dense({ units: 1, activation: "sigmoid" }));
 
   const initLR = 0.001;
   const initMomentum = 0.9;

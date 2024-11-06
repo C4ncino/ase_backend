@@ -1,8 +1,12 @@
-import { getModel, SMALL_MODEL_POOL } from "../models/small-models.js";
-import { calculateMetrics, hasBetterMetrics, createEarlyStoppingCallback } from "../models/metrics.js";
-import { getModelInfo } from "../models/save-model.js"
+import { getModel, SMALL_MODELS_POOL } from "../models/small-models.js";
+import {
+  calculateMetrics,
+  hasBetterMetrics,
+  createEarlyStoppingCallback,
+} from "../models/metrics.js";
+import { getModelInfo } from "../models/save-model.js";
 import { tensor } from "@tensorflow/tfjs";
-import { minimizeModel } from "../models/minimizer.js"
+import { minimizeModel } from "../models/minimizer.js";
 import { calculateBatchSize, logMetrics } from "../models/utils.js";
 
 export const trainModels = async (trainingData, dbInfo, sensorData) => {
@@ -16,22 +20,22 @@ export const trainModels = async (trainingData, dbInfo, sensorData) => {
   const batchSize = calculateBatchSize(xTrain.length);
 
   console.log(`Batch size: ${batchSize}`);
-  
+
   const xTensor = tensor(xTrain);
   const yTensor = tensor(yTrain);
   const xValTensor = tensor(xVal);
   const yValTensor = tensor(yVal);
 
-  for (const modelVersion of SMALL_MODEL_POOL) {
+  for (const modelVersion of SMALL_MODELS_POOL) {
     const model = await getModel(modelVersion);
 
-    const callBack = createEarlyStoppingCallback(model)
+    const callBack = createEarlyStoppingCallback(model);
 
     await model.fit(xTensor, yTensor, {
       epochs: 20,
       batchSize: batchSize,
       validationData: [xValTensor, yValTensor],
-      callbacks: [callBack]
+      callbacks: [callBack],
       // verbose: 0,
     });
 
@@ -59,11 +63,9 @@ export const trainModels = async (trainingData, dbInfo, sensorData) => {
       bestModel = model;
       bestMetrics = metrics;
       continue;
-    }
-    else {
+    } else {
       model.dispose();
     }
-
   }
 
   bestModel.summary();
