@@ -1,5 +1,5 @@
 import { sequential, layers, train } from "@tensorflow/tfjs";
-import {InputConfig, Initializers} from "./utils.js";
+import { InputConfig, Initializers } from "./utils.js";
 
 const get_large_LSTM_v1 = () => {
   return sequential({
@@ -8,10 +8,10 @@ const get_large_LSTM_v1 = () => {
       layers.dropout({ rate: 0.2 }),
       layers.lstm({ units: 96, returnSequences: true, ...Initializers }),
       layers.dropout({ rate: 0.3 }),
-      layers.lstm({ units: 56, ...Initializers }),
+      layers.lstm({ units: 64, ...Initializers }),
       layers.dropout({ rate: 0.3 }),
       layers.dense({ units: 128, activation: "relu" }),
-      layers.dropout({ rate: 0.4 }),
+      layers.dropout({ rate: 0.3 }),
     ],
   });
 };

@@ -1,6 +1,8 @@
+export const InputShape = [60, 8];
+
 export const InputConfig = {
   returnSequences: true,
-  inputShape: [60, 8],
+  inputShape: InputShape,
 }
 
 export const Initializers = {
