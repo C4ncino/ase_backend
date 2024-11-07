@@ -52,6 +52,12 @@ LSTM_CONFIGS = [
     {"layer1": 28, "dropout1": 0.2, "layer2": 16, "dropout2": 0.3, "dense": 16, "dropout3": 0.1}
 ]
 
+DENSE_CONFIGS = [
+    {"layer1": 24, "dropout1": 0.2, "layer2": 20, "dropout2": 0.3, "dense": 20, "dropout3": 0.1},
+    {"layer1": 30, "dropout1": 0.4, "layer2": 16, "dropout2": 0.3, "dense": 22, "dropout3": 0.1},
+    {"layer1": 30, "dropout1": 0.4, "layer2": 24, "dropout2": 0.3, "dense": 16, "dropout3": 0.1},
+]
+
 # SMALL_MODELS = [
 #     "L1", "L2", "L3", "L4",
 #     "LG1", "LG2", "LG3", "LG4", "LG5",
@@ -60,13 +66,19 @@ LSTM_CONFIGS = [
 #     "GG1", "GG2", "GG3", "GG4", "GG5",
 # ]
 
-SMALL_MODELS = [
-    "L21", "L22", "L23", "L24", "L25", "L26"
-    "G1", "G2", "G4", "G3", "L2", "L1",
-    "LG5", "GG5", "L4", "G8", "G5", "LG1",
-    "GG4", "GG2", "LG4", "L3", "LG3"
-]
+# SMALL_MODELS = [
+#     "L21", "L22", "L23", "L24", "L25", "L26",
+#     "G1", "G2", "G4", "G3", "L2", "L1",
+#     "LG5", "GG5", "L4", "G8", "G5", "LG1",
+#     "GG4", "GG2", "LG4", "L3", "LG3"
+# ]
 
+
+SMALL_MODELS = [
+    "D1", "D2", "D3",
+    "G1", "G2", "G3", "G4", "G5",
+    "L1", "GG2", "LG4", "L23"
+]
 
 def get_LSTM(config: dict) -> Model:
     return Sequential([
@@ -85,6 +97,19 @@ def get_GRU(config: dict) -> Model:
         layers.GRU(config["layer1"], **input_layer_config),
         layers.Dropout(config["dropout1"]),
         layers.GRU(config["layer2"], **recurrent_config),
+        layers.Dropout(config["dropout2"]),
+        layers.Dense(config["dense"], activation='relu'),
+        layers.Dropout(config["dropout3"]),
+        layers.Dense(1, activation='sigmoid')
+    ])
+
+
+def get_Dense(config: dict) -> Model:
+    return Sequential([
+        layers.Flatten(input_shape=(60, 8)),
+        layers.Dense(config["layer1"]),
+        layers.Dropout(config["dropout1"]),
+        layers.Dense(config["layer2"]),
         layers.Dropout(config["dropout2"]),
         layers.Dense(config["dense"], activation='relu'),
         layers.Dropout(config["dropout3"]),
@@ -114,7 +139,7 @@ def get_model(type: str) -> Model:
             model = get_LSTM(LSTM_CONFIGS[7])
         case 'LG5':
             model = get_LSTM(LSTM_CONFIGS[8])
-        
+
         case 'L21':
             model = get_LSTM(LSTM_CONFIGS[9])
         case 'L22':
@@ -154,6 +179,13 @@ def get_model(type: str) -> Model:
             model = get_GRU(GRU_CONFIGS[11])
         case 'GG5':
             model = get_GRU(GRU_CONFIGS[12])
+
+        case 'D1':
+            model = get_Dense(DENSE_CONFIGS[0])
+        case 'D2':
+            model = get_Dense(DENSE_CONFIGS[1])
+        case 'D3':
+            model = get_Dense(DENSE_CONFIGS[2])
 
     if model:
         optimizer = SGD(learning_rate=0.001, momentum=0.9)
