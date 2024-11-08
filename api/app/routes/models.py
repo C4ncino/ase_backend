@@ -1,8 +1,12 @@
 from datetime import datetime as dt
 from app.database import database
 from app.utils import pp_decorator
+from celery.result import AsyncResult
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
+from app.tasks import train_large_model
+from app.models import prepare_data_for_lm
+
 
 models_bp = Blueprint('models', __name__, url_prefix='/models')
 
@@ -72,3 +76,57 @@ def update_model(user_id):
         return jsonify({'error': 'Fallo en la actualización'}), 500
 
     return jsonify({'model': model.serialize()}), 200
+
+
+@models_bp.route('/retrain-large', methods=['POST'])
+@pp_decorator(request, required_fields=['user_id'])
+@jwt_required()
+def retrain_large():
+    user_id = request.json['user_id']
+
+    x_train, x_val, y_train, y_val, n_classes = prepare_data_for_lm(user_id)
+
+    task = train_large_model.delay(
+        {
+            'xTrain': x_train.tolist(),
+            'xVal': x_val.tolist(),
+            'yTrain': y_train.tolist(),
+            'yVal': y_val.tolist()
+        },
+        n_classes,
+        user_id
+    )
+
+    return jsonify({
+        'task': task.id
+    }), 200
+
+
+@models_bp.route('/retrain-large/<string:task_id>', methods=['GET'])
+@jwt_required()
+def validate_train_large(task_id):
+    result = AsyncResult(task_id)
+    row = None
+
+    if result.ready() and result.successful():
+        model_info, user_id = result.result
+
+        existing_model = database.read_by_id('models', user_id)
+
+        if existing_model:
+            row = database.update_table_row(
+                'models',
+                user_id,
+                {'model': model_info, 'last_update': dt.now()}
+            )
+        else:
+            _, row = database.create_table_row(
+                'models',
+                {'id': user_id, 'model': model_info}
+            )
+
+    return jsonify({
+        "ready": result.ready(),
+        "success": result.successful(),
+        "result": row.serialize() if row else None,
+    }), 200

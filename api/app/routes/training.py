@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify, request
 
 from app.database import database
 from app.utils import pp_decorator
+from app.models import generate_more_data
 from app.tasks import remove_by_dtw, train_models, train_large_model
 from app.models import inspect_fingers, prepare_data, prepare_data_for_lm
 
@@ -85,7 +86,11 @@ def train():
 
         user_id = request.json['user_id']
 
-        x_train, x_val, y_train, y_val = prepare_data(sensor_data, user_id)
+        more_samples = generate_more_data(sensor_data)
+
+        training_data = sensor_data + more_samples
+
+        x_train, x_val, y_train, y_val = prepare_data(training_data, user_id)
 
         task = train_models.delay({
             'xTrain': x_train.tolist(),
@@ -96,7 +101,7 @@ def train():
             'user_id': request.json['user_id'],
             'word': request.json['word'],
             'characteristics': request.json['chars']
-        }, sensor_data)
+        }, training_data)
 
         return jsonify({
             'task': task.id

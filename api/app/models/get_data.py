@@ -1,5 +1,6 @@
-import pandas as pd
+import random
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from app.database import database
 
@@ -25,6 +26,59 @@ def generate_random(quantity=20) -> np.ndarray:
     samples_array = np.array(samples, dtype=object)
 
     return samples_array
+
+
+def generate_more_data(sensors_data: list[dict], new_samples=40):
+    fingers = ['thumb', 'index', 'middle', 'ring', 'pinky']
+    sensors_dfs = [pd.DataFrame(sample) for sample in sensors_data]
+
+    means_dfs = []
+
+    for i in range(60):
+        rows = []
+
+        for df in sensors_dfs:
+            try:
+                rows.append(df.iloc[[i]])
+            except IndexError:
+                pass
+
+        new_df = pd.concat(rows, ignore_index=True)
+        means_dfs.append((new_df.mean(), new_df.std()))
+
+    new_data = []
+
+    for i in range(new_samples):
+        random_len = random.randint(54, 60)
+
+        new_data.append([])
+
+        for j in range(random_len):
+            means, stds = means_dfs[j]
+
+            random_row = pd.Series({
+                column: np.random.normal(loc=means[column], scale=stds[column] / 2) 
+                for column in means.index
+            })
+
+            for finger in fingers:
+                random_row[finger] = round(random_row[finger])
+
+            new_data[i].append(random_row.to_dict())
+
+    for i in range(len(new_data)):
+        df = pd.DataFrame(new_data[i])
+
+        for column in ['x', 'y', 'z']:
+            prev_val = df[column]
+
+            df[column] = df[column].rolling(4).mean()
+            df[column] = df[column].fillna(prev_val.iloc[0])
+            df[column] = round(df[column], 2)
+
+        new_data[i] = df.to_dict(orient='records')
+
+    return new_data
 
 
 def pad_sequences(in_array: list[np.ndarray], n=MAX_LEN):
