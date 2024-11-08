@@ -1,4 +1,5 @@
-from train2 import WORDS, main as train
+from train2 import main as train
+from prepare_data import WORDS
 
 
 def main():
