@@ -6,7 +6,6 @@ import {
 } from "../models/metrics.js";
 import { getModelInfo } from "../models/save-model.js";
 import { tensor } from "@tensorflow/tfjs";
-import { minimizeModel } from "../models/minimizer.js";
 import { calculateBatchSize, logMetrics } from "../models/utils.js";
 
 export const trainModels = async (trainingData, dbInfo, sensorData) => {
@@ -39,9 +38,7 @@ export const trainModels = async (trainingData, dbInfo, sensorData) => {
       // verbose: 0,
     });
 
-    const minModel = minimizeModel(model);
-
-    const yPredProb = minModel.predict(xValTensor).dataSync();
+    const yPredProb = model.predict(xValTensor).dataSync();
     const yPred = yPredProb.map((prob) => (prob > 0.5 ? 1 : 0));
 
     const metrics = calculateMetrics(yValTensor.dataSync(), yPred);

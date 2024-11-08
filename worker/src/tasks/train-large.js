@@ -1,7 +1,6 @@
 import { get_large_model } from "../models/large-models.js";
 import { tensor } from "@tensorflow/tfjs";
 import { getModelInfo } from "../models/save-model.js";
-import { minimizeModel } from "../models/minimizer.js";
 import { calculateBatchSize } from "../models/utils.js";
 import { createEarlyStoppingCallback } from "../models/metrics.js";
 
@@ -17,7 +16,7 @@ export const trainLargeModel = async (trainingData, nClases, userId) => {
 
   const batchSize = calculateBatchSize(xTrain.length);
 
-  let model = get_large_model("L1", nClases);
+  const model = get_large_model("L1", nClases);
 
   const callBack = createEarlyStoppingCallback(model);
 
@@ -30,8 +29,6 @@ export const trainLargeModel = async (trainingData, nClases, userId) => {
   });
 
   model.summary();
-
-  model = minimizeModel(model, 16, 0.01);
 
   const modelInfo = await getModelInfo(model);
 
