@@ -3,7 +3,7 @@ Define user routes
 """
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from app.utils import pp_decorator
 from app.database import database
 
@@ -44,7 +44,8 @@ def login():
 
     # generan token JWT
     token = create_access_token(
-        {
+        identity=email,
+        additional_claims={
             'user_id': user_id,
             'email': email
         },
@@ -56,6 +57,11 @@ def login():
         {
             'user': result[0].serialize(),
             'token': token,
+            'a': {
+                'sub': email,
+                'user_id': user_id,
+                'email': email
+            },
         }
     ), 200
 
@@ -77,7 +83,13 @@ def signup():
         if not success:
             return jsonify({'error': 'Fallo en el registro'}), 500
 
-        token = create_access_token({'user_id': user.id, 'email': user.email})
+        token = create_access_token(
+            identity=user.email,
+            additional_claims={
+                'user_id': user.user_id,
+                'email': user.email
+            },
+        )
 
         return jsonify(
             {
@@ -103,8 +115,8 @@ def refresh():
 @jwt_required()
 def me():
     # Obtener el ID de usuario encriptado desde el token
-    current_user = get_jwt_identity()
-    user_id = current_user.get('user_id')
+    claims = get_jwt()
+    user_id = claims.get('user_id')
 
     # Buscar el usuario en la base de datos usando el ID
     user = database.read_by_id('users', user_id)
